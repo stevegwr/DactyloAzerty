@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dactylo AZERTY</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#1B2A2E">
+<meta name="description" content="Apprendre à taper au clavier AZERTY sans regarder ses mains.">
+<style>
+:root{
+  --desk:#1B2A2E;
+  --desk-2:#24383D;
+  --desk-3:#2E464C;
+  --keycap:#EDEEE9;
+  --keycap-edge:#BFC3BB;
+  --ink:#16211F;
+  --text:#DFE9E6;
+  --muted:#8BA5A1;
+  --amber:#F0B429;
+  --f-auriculaire:#C4646E;
+  --f-annulaire:#D9954A;
+  --f-majeur:#6FA98A;
+  --f-index:#6C8FC4;
+  --f-pouce:#7A8A8C;
+  --erreur:#E05A5A;
+  --ui:"Segoe UI Variable Text","Segoe UI",Inter,system-ui,-apple-system,sans-serif;
+  --mono:"Cascadia Mono",Consolas,"SF Mono",ui-monospace,"DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--desk);
+  color:var(--text);
+  font-family:var(--ui);
+  font-size:16px;
+  line-height:1.5;
+  min-height:100vh;
+  padding:0 0 32px;
+}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+
+/* ---------- en-tête ---------- */
+header{padding:22px 0 14px}
+h1{
+  font-size:22px;font-weight:650;letter-spacing:-0.01em;margin:0 0 2px;
+}
+.sous{color:var(--muted);font-size:14px;margin:0}
+
+nav{display:flex;gap:4px;margin:16px 0 20px;flex-wrap:wrap}
+nav button{
+  font-family:inherit;font-size:14px;color:var(--muted);
+  background:transparent;border:1px solid transparent;border-radius:7px;
+  padding:7px 13px;cursor:pointer;
+}
+nav button:hover{color:var(--text);background:var(--desk-2)}
+nav button[aria-selected="true"]{
+  color:var(--ink);background:var(--keycap);font-weight:600;
+}
+nav button:focus-visible,button:focus-visible,select:focus-visible{
+  outline:2px solid var(--amber);outline-offset:2px
+}
+
+.panneau{display:none}
+.panneau.actif{display:block}
+
+/* ---------- rail de mesures ---------- */
+.mesures{
+  display:flex;gap:26px;align-items:baseline;
+  border-bottom:1px solid var(--desk-3);padding-bottom:12px;margin-bottom:20px;
+  flex-wrap:wrap;
+}
+.mesure b{
+  font-family:var(--mono);font-size:26px;font-weight:600;
+  font-variant-numeric:tabular-nums;color:var(--text);
+}
+.mesure span{color:var(--muted);font-size:13px;margin-left:6px}
+.mesure.cible b{color:var(--amber)}
+
+/* ---------- zone de frappe ---------- */
+.scene{
+  background:var(--desk-2);border-radius:12px;padding:22px 20px;margin-bottom:14px;
+}
+#ligne{
+  font-family:var(--mono);
+  font-size:clamp(17px,3.6vw,27px);
+  line-height:1.85;
+  letter-spacing:0.04em;
+  word-break:break-word;
+  min-height:2.4em;
+}
+#ligne i{font-style:normal;padding:1px 0;border-radius:3px}
+#ligne i.ok{color:var(--muted)}
+#ligne i.faux{color:#fff;background:var(--erreur)}
+#ligne i.actuel{
+  color:var(--ink);background:var(--amber);
+  box-shadow:0 0 0 2px var(--amber);
+}
+#ligne i.esp{white-space:pre}
+#ligne i.actuel.esp{background:var(--amber)}
+
+.indice{
+  margin-top:14px;color:var(--muted);font-size:14px;min-height:1.5em;
+  display:flex;align-items:center;gap:9px;
+}
+.pastille{width:11px;height:11px;border-radius:50%;flex:none}
+
+/* ---------- clavier ---------- */
+.clavier{margin-top:6px;display:flex;flex-direction:column;gap:5px}
+.rangee{display:flex;gap:5px}
+.k{
+  flex:var(--w,1) 1 0;
+  height:clamp(30px,7.2vw,46px);
+  background:var(--keycap);
+  color:var(--ink);
+  border-radius:5px;
+  border-bottom:2px solid var(--keycap-edge);
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(9px,2.1vw,14px);
+  font-weight:500;
+  user-select:none;
+  transition:transform .05s ease, background .08s ease;
+}
+.k.mod{background:var(--desk-3);color:var(--muted);border-bottom-color:#1b2b2f;font-size:clamp(8px,1.7vw,11px)}
+.k.vide{background:transparent;border:none}
+.k.attendu{transform:translateY(2px);border-bottom-width:0;margin-bottom:2px;color:#fff}
+.k.frappee{transform:translateY(2px);border-bottom-width:0;margin-bottom:2px}
+.k[data-doigt="1"].attendu,.k[data-doigt="8"].attendu{background:var(--f-auriculaire)}
+.k[data-doigt="2"].attendu,.k[data-doigt="7"].attendu{background:var(--f-annulaire)}
+.k[data-doigt="3"].attendu,.k[data-doigt="6"].attendu{background:var(--f-majeur)}
+.k[data-doigt="4"].attendu,.k[data-doigt="5"].attendu{background:var(--f-index)}
+.k[data-doigt="0"].attendu{background:var(--f-pouce)}
+.k.repere{position:relative}
+.k.repere::after{
+  content:"";position:absolute;bottom:6px;width:34%;height:2px;
+  background:var(--keycap-edge);border-radius:2px;
+}
+.k.attendu.repere::after{background:rgba(255,255,255,.6)}
+
+.legende{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;color:var(--muted);font-size:13px}
+.legende span{display:flex;align-items:center;gap:6px}
+
+/* ---------- leçons ---------- */
+.grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:8px;margin-bottom:22px}
+.lecon{
+  text-align:left;font-family:inherit;cursor:pointer;
+  background:var(--desk-2);border:1px solid var(--desk-3);border-radius:9px;
+  padding:11px 12px;color:var(--text);
+}
+.lecon:hover{border-color:var(--muted)}
+.lecon[aria-current="true"]{border-color:var(--amber);background:var(--desk-3)}
+.lecon strong{display:block;font-size:13px;font-weight:600;margin-bottom:3px}
+.lecon em{
+  display:block;font-style:normal;font-family:var(--mono);
+  font-size:15px;color:var(--muted);letter-spacing:.12em;
+}
+.lecon .validee{color:var(--amber);font-size:12px}
+
+/* ---------- boutons ---------- */
+.actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
+.btn{
+  font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;
+  background:var(--keycap);color:var(--ink);border:none;border-radius:8px;padding:9px 17px;
+}
+.btn.creux{background:transparent;color:var(--text);border:1px solid var(--desk-3);font-weight:500}
+.btn:hover{opacity:.88}
+select{
+  font-family:inherit;font-size:14px;background:var(--desk-2);color:var(--text);
+  border:1px solid var(--desk-3);border-radius:8px;padding:9px 11px;
+}
+
+/* ---------- bilan ---------- */
+.bilan{
+  background:var(--desk-3);border-radius:10px;padding:16px 18px;margin-bottom:18px;
+  border-left:3px solid var(--amber);
+}
+.bilan h3{margin:0 0 6px;font-size:16px}
+.bilan p{margin:0;color:var(--text);font-size:14px}
+
+/* ---------- jeu ---------- */
+#arene{
+  position:relative;height:min(56vh,380px);background:var(--desk-2);
+  border-radius:12px;overflow:hidden;margin-bottom:12px;
+}
+.tombe{
+  position:absolute;font-family:var(--mono);font-size:19px;
+  background:var(--desk-3);color:var(--text);padding:4px 10px;border-radius:6px;
+  white-space:nowrap;
+}
+.tombe .fait{color:var(--amber);font-weight:700}
+.tombe.vise{box-shadow:0 0 0 2px var(--amber)}
+#sol{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--erreur);opacity:.55}
+#saisie{
+  font-family:var(--mono);font-size:18px;letter-spacing:.06em;
+  color:var(--amber);min-height:1.6em;margin-bottom:10px;
+}
+
+/* ---------- stats ---------- */
+.cartes{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:22px}
+.carte{background:var(--desk-2);border-radius:10px;padding:14px}
+.carte b{display:block;font-family:var(--mono);font-size:25px;font-weight:600;font-variant-numeric:tabular-nums}
+.carte span{color:var(--muted);font-size:13px}
+h2{font-size:15px;font-weight:600;margin:26px 0 10px}
+h2:first-of-type{margin-top:0}
+.vide-msg{color:var(--muted);font-size:14px}
+svg{width:100%;height:170px;display:block}
+.barres{display:flex;flex-direction:column;gap:6px}
+.barre{display:flex;align-items:center;gap:10px;font-size:14px}
+.barre code{
+  font-family:var(--mono);width:2ch;text-align:center;
+  background:var(--keycap);color:var(--ink);border-radius:4px;padding:2px 7px;
+}
+.barre .jauge{flex:1;height:8px;background:var(--desk-3);border-radius:4px;overflow:hidden}
+.barre .jauge div{height:100%;background:var(--erreur)}
+.barre small{color:var(--muted);font-variant-numeric:tabular-nums;width:6ch;text-align:right}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--desk-3)}
+th{color:var(--muted);font-weight:500;font-size:13px}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Dactylo AZERTY</h1>
+  <p class="sous">Apprendre à taper sans regarder ses mains, une rangée à la fois.</p>
+</header>
+
+<nav role="tablist">
+  <button role="tab" data-vue="lecons" aria-selected="true">Leçons</button>
+  <button role="tab" data-vue="vitesse" aria-selected="false">Vitesse</button>
+  <button role="tab" data-vue="jeu" aria-selected="false">Jeu</button>
+  <button role="tab" data-vue="stats" aria-selected="false">Progression</button>
+</nav>
+
+<!-- ============ LEÇONS ============ -->
+<section class="panneau actif" id="vue-lecons">
+  <div class="grille" id="liste-lecons"></div>
+  <div class="mesures">
+    <div class="mesure"><b id="l-mpm">0</b><span>mots/min</span></div>
+    <div class="mesure"><b id="l-prec">100</b><span>% de précision</span></div>
+    <div class="mesure"><b id="l-avance">0</b><span>% de la série</span></div>
+    <div class="mesure cible"><b id="l-cible">—</b><span>objectif</span></div>
+  </div>
+  <div class="scene">
+    <div id="ligne"></div>
+    <div class="indice" id="l-indice"></div>
+  </div>
+  <div id="bilan-lecon"></div>
+  <div class="actions">
+    <button class="btn" id="l-rejouer">Nouvelle série</button>
+    <button class="btn creux" id="l-suivante">Leçon suivante</button>
+  </div>
+</section>
+
+<!-- ============ VITESSE ============ -->
+<section class="panneau" id="vue-vitesse">
+  <div class="actions">
+    <select id="v-duree">
+      <option value="30">30 secondes</option>
+      <option value="60" selected>1 minute</option>
+      <option value="120">2 minutes</option>
+      <option value="300">5 minutes</option>
+    </select>
+    <button class="btn" id="v-lancer">Lancer le test</button>
+  </div>
+  <div class="mesures">
+    <div class="mesure"><b id="v-chrono">1:00</b><span>restant</span></div>
+    <div class="mesure"><b id="v-mpm">0</b><span>mots/min</span></div>
+    <div class="mesure"><b id="v-prec">100</b><span>% de précision</span></div>
+  </div>
+  <div class="scene">
+    <div id="v-ligne"></div>
+    <div class="indice" id="v-indice"></div>
+  </div>
+  <div id="bilan-vitesse"></div>
+</section>
+
+<!-- ============ JEU ============ -->
+<section class="panneau" id="vue-jeu">
+  <div class="mesures">
+    <div class="mesure"><b id="j-score">0</b><span>points</span></div>
+    <div class="mesure"><b id="j-niveau">1</b><span>niveau</span></div>
+    <div class="mesure"><b id="j-vies">♥♥♥</b><span>vies</span></div>
+  </div>
+  <div id="arene"><div id="sol"></div></div>
+  <div id="saisie">&nbsp;</div>
+  <div class="actions">
+    <button class="btn" id="j-lancer">Commencer</button>
+    <span class="vide-msg">Tape un mot en entier pour le faire disparaître. Échap pour effacer la saisie.</span>
+  </div>
+</section>
+
+<!-- ============ STATS ============ -->
+<section class="panneau" id="vue-stats">
+  <div class="cartes">
+    <div class="carte"><b id="s-record">—</b><span>meilleur MPM</span></div>
+    <div class="carte"><b id="s-moyen">—</b><span>MPM moyen (10 derniers)</span></div>
+    <div class="carte"><b id="s-prec">—</b><span>précision moyenne</span></div>
+    <div class="carte"><b id="s-lecons">0/17</b><span>leçons validées</span></div>
+  </div>
+
+  <h2>Évolution de la vitesse</h2>
+  <div id="graphe"><p class="vide-msg">Aucune session enregistrée pour l'instant.</p></div>
+
+  <h2>Touches qui te ralentissent</h2>
+  <div id="heatmap"><p class="vide-msg">Les statistiques par touche apparaîtront après quelques séries.</p></div>
+
+  <h2>Historique</h2>
+  <div id="historique"><p class="vide-msg">Rien à afficher.</p></div>
+
+  <div class="actions" style="margin-top:24px">
+    <button class="btn creux" id="s-reset">Effacer ma progression</button>
+  </div>
+</section>
+
+</div>
+
+<script>
+"use strict";
+
+/* =========================================================
+   1. STOCKAGE (window.storage si dispo, sinon localStorage)
+   ========================================================= */
+const Store = {
+  async lire(cle){
+    try{
+      if (window.storage && window.storage.get){
+        const r = await window.storage.get(cle);
+        return r && r.value ? JSON.parse(r.value) : null;
+      }
+      const v = localStorage.getItem(cle);
+      return v ? JSON.parse(v) : null;
+    }catch(e){ return null; }
+  },
+  async ecrire(cle, val){
+    try{
+      const s = JSON.stringify(val);
+      if (window.storage && window.storage.set){ await window.storage.set(cle, s); return; }
+      localStorage.setItem(cle, s);
+    }catch(e){ /* mémoire de session uniquement */ }
+  }
+};
+
+const CLE = "dactylo-azerty-v1";
+let data = { lecons:{}, touches:{}, sessions:[] };
+
+async function chargerData(){
+  const d = await Store.lire(CLE);
+  if (d && typeof d === "object"){
+    data.lecons   = d.lecons   || {};
+    data.touches  = d.touches  || {};
+    data.sessions = d.sessions || [];
+  }
+}
+function sauver(){ Store.ecrire(CLE, data); }
+
+/* =========================================================
+   2. CLAVIER AZERTY — [caractère, doigt, largeur, libellé]
+   doigts : 1..4 = auriculaire→index gauche, 5..8 = index→auriculaire droit, 0 = pouce
+   ========================================================= */
+const RANGEES = [
+  [["²",1],["&",1],["é",2],['"',3],["'",4],["(",4],["-",5],["è",5],["_",6],["ç",7],["à",8],[")",8],["=",8],[null,8,2,"⌫"]],
+  [[null,1,1.5,"Tab"],["a",1],["z",2],["e",3],["r",4],["t",4],["y",5],["u",5],["i",6],["o",7],["p",8],["^",8],["$",8],[null,0,1.5,""]],
+  [[null,1,1.75,"Maj⇩"],["q",1],["s",2],["d",3],["f",4],["g",4],["h",5],["j",5],["k",6],["l",7],["m",8],["ù",8],["*",8],[null,8,1.25,"⏎"]],
+  [[null,1,1.25,"⇧"],["<",1],["w",1],["x",2],["c",3],["v",4],["b",4],["n",5],[",",5],[";",6],[":",7],["!",8],[null,8,2.75,"⇧"]],
+  [[null,1,1.75,"Ctrl"],[null,2,1.5,"Alt"],[" ",0,8.5,"Espace"],[null,7,1.5,"AltGr"],[null,8,1.75,"Ctrl"]]
+];
+const NOM_DOIGT = {
+  1:"auriculaire gauche", 2:"annulaire gauche", 3:"majeur gauche", 4:"index gauche",
+  5:"index droit", 6:"majeur droit", 7:"annulaire droit", 8:"auriculaire droit", 0:"pouce"
+};
+const COULEUR_DOIGT = {
+  1:"var(--f-auriculaire)",8:"var(--f-auriculaire)",
+  2:"var(--f-annulaire)",  7:"var(--f-annulaire)",
+  3:"var(--f-majeur)",     6:"var(--f-majeur)",
+  4:"var(--f-index)",      5:"var(--f-index)",
+  0:"var(--f-pouce)"
+};
+const DOIGT_DE = {};       // caractère -> doigt
+
+function construireClavier(){
+  const cl = document.createElement("div");
+  cl.className = "clavier";
+  RANGEES.forEach(rang => {
+    const r = document.createElement("div");
+    r.className = "rangee";
+    rang.forEach(([car, doigt, larg, lib]) => {
+      const k = document.createElement("div");
+      k.className = "k";
+      k.style.setProperty("--w", larg || 1);
+      k.dataset.doigt = doigt;
+      if (car === null){
+        k.classList.add(lib === "" ? "vide" : "mod");
+        k.textContent = lib;
+      } else {
+        k.dataset.car = car;
+        k.textContent = car === " " ? "Espace" : car;
+        if (car === " ") k.style.setProperty("--w", larg);
+        if (car === "f" || car === "j") k.classList.add("repere");
+        DOIGT_DE[car] = doigt;
+      }
+      r.appendChild(k);
+    });
+    cl.appendChild(r);
+  });
+  return cl;
+}
+// un clavier par vue qui en a besoin
+const claviers = {};
+function poserClavier(idScene, cle){
+  const c = construireClavier();
+  claviers[cle] = c;
+  document.querySelector(idScene).appendChild(c);
+}
+
+function doigtDe(car){
+  if (car === " ") return 0;
+  const bas = car.toLowerCase();
+  return DOIGT_DE[bas] !== undefined ? DOIGT_DE[bas] : null;
+}
+function surlignerAttendu(cle, car){
+  const c = claviers[cle];
+  if (!c) return;
+  c.querySelectorAll(".attendu").forEach(k => k.classList.remove("attendu"));
+  if (!car) return;
+  const bas = car === " " ? " " : car.toLowerCase();
+  const k = c.querySelector('.k[data-car="' + (bas === '"' ? '\\"' : bas) + '"]');
+  if (k) k.classList.add("attendu");
+}
+function flashTouche(cle, car){
+  const c = claviers[cle];
+  if (!c) return;
+  const bas = car === " " ? " " : car.toLowerCase();
+  const k = c.querySelector('.k[data-car="' + (bas === '"' ? '\\"' : bas) + '"]');
+  if (!k) return;
+  k.classList.add("frappee");
+  setTimeout(() => k.classList.remove("frappee"), 90);
+}
+function legende(){
+  const l = document.createElement("div");
+  l.className = "legende";
+  [[1,"Auriculaires"],[2,"Annulaires"],[3,"Majeurs"],[4,"Index"],[0,"Pouces"]].forEach(([d,nom]) => {
+    const s = document.createElement("span");
+    s.innerHTML = '<i class="pastille" style="background:' + COULEUR_DOIGT[d] + '"></i>' + nom;
+    l.appendChild(s);
+  });
+  return l;
+}
+
+/* =========================================================
+   3. LEÇONS
+   ========================================================= */
+const LECONS = [
+  {t:"Position de repos",  c:["f","j"],                       o:{mpm:12,prec:96}},
+  {t:"Les majeurs",        c:["d","k"],                       o:{mpm:12,prec:96}},
+  {t:"Les annulaires",     c:["s","l"],                       o:{mpm:13,prec:96}},
+  {t:"Les auriculaires",   c:["q","m"],                       o:{mpm:13,prec:95}},
+  {t:"Index en extension", c:["g","h"],                       o:{mpm:14,prec:95}},
+  {t:"Rangée de repos",    c:["q","s","d","f","g","h","j","k","l","m"], o:{mpm:16,prec:95}},
+  {t:"Majeurs en haut",    c:["e","i"],                       o:{mpm:15,prec:95}},
+  {t:"Index en haut",      c:["r","u"],                       o:{mpm:15,prec:95}},
+  {t:"Index vers le centre",c:["t","y"],                      o:{mpm:15,prec:95}},
+  {t:"Annulaires en haut", c:["z","o"],                       o:{mpm:16,prec:95}},
+  {t:"Auriculaires en haut",c:["a","p"],                      o:{mpm:16,prec:95}},
+  {t:"Rangée haute",       c:["a","z","e","r","t","y","u","i","o","p"], o:{mpm:18,prec:95}},
+  {t:"Rangée basse",       c:["x","c","v","b","n"],           o:{mpm:17,prec:95}},
+  {t:"Bas et ponctuation", c:["w",",",";",":"],               o:{mpm:16,prec:94}},
+  {t:"Les trois rangées",  c:["a","z","e","r","t","y","u","i","o","p","q","s","d","f","g","h","j","k","l","m","w","x","c","v","b","n"], o:{mpm:20,prec:95}},
+  {t:"Les accents",        c:["é","è","à","ç","ù"],           o:{mpm:14,prec:94}},
+  {t:"Mots réels",         c:[], mots:true,                   o:{mpm:22,prec:96}}
+];
+
+const MOTS = ("le la les un une des et est en dans pour que qui sur avec pas plus par ne se ce il elle nous vous ils sont "+
+"etre avoir faire dire aller voir savoir pouvoir vouloir venir devoir prendre trouver donner parler mettre passer "+
+"temps jour homme femme enfant monde vie main chose maison pays eau feu air terre ciel mer route ville rue porte "+
+"table livre mot texte page clavier doigt frappe vitesse ligne serie exercice travail projet plan note calcul "+
+"soleil toiture panneau charpente bureau dessin mesure angle pente surface module rendement reseau "+
+"vert bleu rouge blanc noir grand petit long court haut bas neuf vieux clair sombre simple juste "+
+"matin soir nuit hiver ete printemps automne semaine mois annee heure minute seconde "+
+"lire ecrire compter penser chercher ouvrir fermer monter descendre tenir garder suivre").split(" ");
+
+const MOTS_JEU = MOTS.filter(m => m.length >= 3 && m.length <= 8);
+
+let leconActive = 0;
+
+function poidsChar(c){
+  const s = data.touches[c];
+  if (!s || s.essais < 6) return 1;
+  return 1 + 3 * (s.erreurs / s.essais);
+}
+function tirer(pool){
+  const poids = pool.map(poidsChar);
+  const total = poids.reduce((a,b) => a+b, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < pool.length; i++){
+    r -= poids[i];
+    if (r <= 0) return pool[i];
+  }
+  return pool[pool.length - 1];
+}
+function poolAnterieur(index){
+  const s = new Set();
+  for (let i = 0; i < index; i++) LECONS[i].c.forEach(c => s.add(c));
+  return [...s];
+}
+function genererSerie(index){
+  const lec = LECONS[index];
+  if (lec.mots){
+    const out = [];
+    for (let i = 0; i < 30; i++) out.push(MOTS[Math.floor(Math.random()*MOTS.length)]);
+    return out.join(" ");
+  }
+  const courant = lec.c;
+  const avant = poolAnterieur(index);
+  const groupes = [];
+  for (let g = 0; g < 22; g++){
+    const n = 3 + Math.floor(Math.random() * 3);
+    let mot = "";
+    for (let i = 0; i < n; i++){
+      const pool = (avant.length && Math.random() < 0.3) ? avant : courant;
+      mot += tirer(pool);
+    }
+    groupes.push(mot);
+  }
+  return groupes.join(" ");
+}
+
+/* =========================================================
+   4. MOTEUR DE FRAPPE (partagé leçons / vitesse)
+   ========================================================= */
+function creerMoteur(opts){
+  const el = document.querySelector(opts.ligne);
+  const indice = document.querySelector(opts.indice);
+  let cible = "", pos = 0, spans = [];
+  let debut = null, frappes = 0, erreurs = 0, actif = false;
+  let minuteur = null;
+
+  function rendre(){
+    el.innerHTML = "";
+    spans = [];
+    for (const ch of cible){
+      const s = document.createElement("i");
+      s.textContent = ch === " " ? "\u00A0" : ch;
+      if (ch === " ") s.classList.add("esp");
+      el.appendChild(s);
+      spans.push(s);
+    }
+    majCurseur();
+  }
+  function majCurseur(){
+    spans.forEach((s,i) => {
+      s.classList.remove("actuel");
+      if (i === pos) s.classList.add("actuel");
+    });
+    const car = cible[pos];
+    surlignerAttendu(opts.clavier, car);
+    if (car){
+      const d = doigtDe(car);
+      indice.innerHTML = d === null ? "" :
+        '<i class="pastille" style="background:' + COULEUR_DOIGT[d] + '"></i>' +
+        (car === " " ? "Espace" : "« " + car + " »") + " — " + NOM_DOIGT[d];
+    } else {
+      indice.textContent = "";
+    }
+  }
+  function mpm(){
+    if (!debut) return 0;
+    const min = (Date.now() - debut) / 60000;
+    if (min <= 0) return 0;
+    return Math.max(0, Math.round((pos / 5) / min));
+  }
+  function precision(){
+    if (!frappes) return 100;
+    return Math.round(((frappes - erreurs) / frappes) * 100);
+  }
+  function majMesures(){
+    if (opts.onMesures) opts.onMesures({mpm:mpm(), prec:precision(), pos, total:cible.length});
+  }
+
+  function noterTouche(car, faux){
+    const c = car.toLowerCase();
+    if (!data.touches[c]) data.touches[c] = {essais:0, erreurs:0};
+    data.touches[c].essais++;
+    if (faux) data.touches[c].erreurs++;
+  }
+
+  function saisir(e){
+    if (!actif) return;
+    if (e.key === "Backspace"){ e.preventDefault(); return; }
+    if (e.key.length !== 1 && e.key !== "Spacebar") return;
+    e.preventDefault();
+    const attendu = cible[pos];
+    if (attendu === undefined) return;
+    if (debut === null){
+      debut = Date.now();
+      if (opts.onDemarrage) opts.onDemarrage();
+      minuteur = setInterval(majMesures, 200);
+    }
+    frappes++;
+    flashTouche(opts.clavier, e.key);
+    if (e.key === attendu){
+      noterTouche(attendu, false);
+      spans[pos].classList.remove("faux");
+      spans[pos].classList.add("ok");
+      pos++;
+      majCurseur();
+      majMesures();
+      if (pos >= cible.length) terminer();
+    } else {
+      erreurs++;
+      noterTouche(attendu, true);
+      spans[pos].classList.add("faux");
+      majMesures();
+    }
+  }
+
+  function terminer(){
+    if (!actif) return;
+    actif = false;
+    clearInterval(minuteur);
+    surlignerAttendu(opts.clavier, null);
+    indice.textContent = "";
+    sauver();
+    if (opts.onFin) opts.onFin({mpm:mpm(), prec:precision(), chars:pos});
+  }
+
+  return {
+    demarrer(texte){
+      cible = texte; pos = 0; debut = null; frappes = 0; erreurs = 0; actif = true;
+      clearInterval(minuteur);
+      rendre();
+      majMesures();
+    },
+    stopper: terminer,
+    estActif: () => actif,
+    saisir,
+    mpm, precision
+  };
+}
+
+/* =========================================================
+   5. VUE LEÇONS
+   ========================================================= */
+poserClavier("#vue-lecons .scene", "lecons");
+document.querySelector("#vue-lecons .scene").appendChild(legende());
+
+const moteurLecon = creerMoteur({
+  ligne:"#ligne", indice:"#l-indice", clavier:"lecons",
+  onMesures(m){
+    document.getElementById("l-mpm").textContent = m.mpm;
+    document.getElementById("l-prec").textContent = m.prec;
+    document.getElementById("l-avance").textContent = Math.round((m.pos / m.total) * 100);
+  },
+  onFin(r){
+    const lec = LECONS[leconActive];
+    const reussi = r.mpm >= lec.o.mpm && r.prec >= lec.o.prec;
+    if (reussi) data.lecons[leconActive] = true;
+    data.sessions.push({d:Date.now(), mode:"Leçon " + (leconActive+1), mpm:r.mpm, prec:r.prec});
+    if (data.sessions.length > 200) data.sessions = data.sessions.slice(-200);
+    sauver();
+    dessinerLecons();
+    const b = document.getElementById("bilan-lecon");
+    b.innerHTML =
+      '<div class="bilan"><h3>' + (reussi ? "Leçon validée" : "Série terminée") + '</h3>' +
+      '<p>' + r.mpm + ' mots/min, ' + r.prec + ' % de précision. ' +
+      (reussi
+        ? 'Objectif atteint, tu peux passer à la leçon suivante.'
+        : 'Objectif : ' + lec.o.mpm + ' mots/min et ' + lec.o.prec + ' % de précision. Relance une série.') +
+      '</p></div>';
+    majStats();
+  }
+});
+
+function dessinerLecons(){
+  const box = document.getElementById("liste-lecons");
+  box.innerHTML = "";
+  LECONS.forEach((lec, i) => {
+    const b = document.createElement("button");
+    b.className = "lecon";
+    b.setAttribute("aria-current", i === leconActive ? "true" : "false");
+    const apercu = lec.mots ? "mots complets" : lec.c.slice(0,10).join(" ");
+    b.innerHTML = '<strong>' + (i+1) + '. ' + lec.t + '</strong><em>' + apercu + '</em>' +
+                  (data.lecons[i] ? '<span class="validee">✓ validée</span>' : '');
+    b.onclick = () => choisirLecon(i);
+    box.appendChild(b);
+  });
+}
+function choisirLecon(i){
+  leconActive = i;
+  const lec = LECONS[i];
+  document.getElementById("l-cible").textContent = lec.o.mpm + " / " + lec.o.prec + "%";
+  document.getElementById("bilan-lecon").innerHTML = "";
+  dessinerLecons();
+  moteurLecon.demarrer(genererSerie(i));
+}
+document.getElementById("l-rejouer").onclick = () => choisirLecon(leconActive);
+document.getElementById("l-suivante").onclick = () => choisirLecon(Math.min(leconActive+1, LECONS.length-1));
+
+/* =========================================================
+   6. VUE VITESSE
+   ========================================================= */
+poserClavier("#vue-vitesse .scene", "vitesse");
+
+let chronoV = null, finV = 0;
+const moteurVitesse = creerMoteur({
+  ligne:"#v-ligne", indice:"#v-indice", clavier:"vitesse",
+  onMesures(m){
+    document.getElementById("v-mpm").textContent = m.mpm;
+    document.getElementById("v-prec").textContent = m.prec;
+  },
+  onDemarrage(){
+    const duree = parseInt(document.getElementById("v-duree").value, 10);
+    finV = Date.now() + duree * 1000;
+    chronoV = setInterval(() => {
+      const reste = Math.max(0, finV - Date.now());
+      const s = Math.ceil(reste / 1000);
+      document.getElementById("v-chrono").textContent =
+        Math.floor(s/60) + ":" + String(s % 60).padStart(2, "0");
+      if (reste <= 0) moteurVitesse.stopper();
+    }, 200);
+  },
+  onFin(r){
+    clearInterval(chronoV);
+    data.sessions.push({d:Date.now(), mode:"Vitesse", mpm:r.mpm, prec:r.prec});
+    if (data.sessions.length > 200) data.sessions = data.sessions.slice(-200);
+    sauver();
+    document.getElementById("bilan-vitesse").innerHTML =
+      '<div class="bilan"><h3>Test terminé</h3><p>' + r.mpm + ' mots/min à ' + r.prec +
+      ' % de précision, ' + r.chars + ' caractères.</p></div>';
+    majStats();
+  }
+});
+function lancerVitesse(){
+  const duree = parseInt(document.getElementById("v-duree").value, 10);
+  document.getElementById("v-chrono").textContent =
+    Math.floor(duree/60) + ":" + String(duree % 60).padStart(2, "0");
+  document.getElementById("bilan-vitesse").innerHTML = "";
+  const n = Math.max(60, Math.round(duree * 1.6));
+  const t = [];
+  for (let i = 0; i < n; i++) t.push(MOTS[Math.floor(Math.random()*MOTS.length)]);
+  moteurVitesse.demarrer(t.join(" "));
+}
+document.getElementById("v-lancer").onclick = lancerVitesse;
+
+/* =========================================================
+   7. VUE JEU — mots qui tombent
+   ========================================================= */
+const arene = document.getElementById("arene");
+const affSaisie = document.getElementById("saisie");
+let jeu = null;
+
+function lancerJeu(){
+  arene.querySelectorAll(".tombe").forEach(e => e.remove());
+  jeu = { mots:[], saisie:"", score:0, niveau:1, vies:3, dernier:0, cadence:1900, vitesse:26, rafId:null, t0:performance.now() };
+  document.getElementById("j-lancer").textContent = "Recommencer";
+  majJeuHUD();
+  affSaisie.textContent = "\u00A0";
+  cancelAnimationFrame(jeu.rafId);
+  boucleJeu(performance.now());
+}
+function majJeuHUD(){
+  document.getElementById("j-score").textContent = jeu.score;
+  document.getElementById("j-niveau").textContent = jeu.niveau;
+  document.getElementById("j-vies").textContent = jeu.vies > 0 ? "♥".repeat(jeu.vies) : "—";
+}
+function ajouterMot(){
+  const texte = MOTS_JEU[Math.floor(Math.random()*MOTS_JEU.length)];
+  const el = document.createElement("div");
+  el.className = "tombe";
+  el.textContent = texte;
+  el.style.top = "-30px";
+  arene.appendChild(el);
+  const marge = Math.max(10, arene.clientWidth - el.offsetWidth - 10);
+  el.style.left = Math.round(Math.random() * marge) + "px";
+  jeu.mots.push({texte, el, y:-30});
+}
+function boucleJeu(t){
+  if (!jeu || jeu.vies <= 0) return;
+  const dt = Math.min(50, t - (jeu.dernierT || t));
+  jeu.dernierT = t;
+
+  if (t - jeu.dernier > jeu.cadence){ ajouterMot(); jeu.dernier = t; }
+
+  const bas = arene.clientHeight - 26;
+  for (let i = jeu.mots.length - 1; i >= 0; i--){
+    const m = jeu.mots[i];
+    m.y += jeu.vitesse * dt / 1000;
+    m.el.style.top = m.y + "px";
+    if (m.y >= bas){
+      m.el.remove();
+      jeu.mots.splice(i, 1);
+      jeu.vies--;
+      jeu.saisie = "";
+      affSaisie.textContent = "\u00A0";
+      majJeuHUD();
+      if (jeu.vies <= 0){ finJeu(); return; }
+    }
+  }
+  jeu.rafId = requestAnimationFrame(boucleJeu);
+}
+function finJeu(){
+  jeu.mots.forEach(m => m.el.remove());
+  jeu.mots = [];
+  cancelAnimationFrame(jeu.rafId);
+  affSaisie.textContent = "Partie terminée — " + jeu.score + " points";
+  data.sessions.push({d:Date.now(), mode:"Jeu", mpm:null, prec:null, score:jeu.score});
+  sauver();
+  majStats();
+  jeu = null;
+}
+function frapperJeu(e){
+  if (!jeu) return;
+  if (e.key === "Escape"){ jeu.saisie = ""; peindreJeu(); return; }
+  if (e.key === "Backspace"){ e.preventDefault(); jeu.saisie = jeu.saisie.slice(0,-1); peindreJeu(); return; }
+  if (e.key.length !== 1) return;
+  e.preventDefault();
+  const essai = jeu.saisie + e.key;
+  const touche = jeu.mots.some(m => m.texte.startsWith(essai));
+  if (touche){
+    jeu.saisie = essai;
+    const idx = jeu.mots.findIndex(m => m.texte === essai);
+    if (idx !== -1){
+      const m = jeu.mots[idx];
+      m.el.remove();
+      jeu.mots.splice(idx, 1);
+      jeu.score += m.texte.length * 10;
+      jeu.saisie = "";
+      if (jeu.score > jeu.niveau * 300){
+        jeu.niveau++;
+        jeu.vitesse += 7;
+        jeu.cadence = Math.max(650, jeu.cadence - 160);
+      }
+      majJeuHUD();
+    }
+  } else {
+    jeu.saisie = "";
+  }
+  peindreJeu();
+}
+function peindreJeu(){
+  affSaisie.textContent = jeu.saisie || "\u00A0";
+  jeu.mots.forEach(m => {
+    const vise = jeu.saisie && m.texte.startsWith(jeu.saisie);
+    m.el.classList.toggle("vise", !!vise);
+    m.el.innerHTML = vise
+      ? '<span class="fait">' + jeu.saisie + '</span>' + m.texte.slice(jeu.saisie.length)
+      : m.texte;
+  });
+}
+document.getElementById("j-lancer").onclick = lancerJeu;
+
+/* =========================================================
+   8. VUE STATS
+   ========================================================= */
+function majStats(){
+  const avecMpm = data.sessions.filter(s => typeof s.mpm === "number");
+  const record = avecMpm.length ? Math.max(...avecMpm.map(s => s.mpm)) : null;
+  const dix = avecMpm.slice(-10);
+  const moy = dix.length ? Math.round(dix.reduce((a,s) => a+s.mpm, 0) / dix.length) : null;
+  const prec = dix.length ? Math.round(dix.reduce((a,s) => a+s.prec, 0) / dix.length) : null;
+
+  document.getElementById("s-record").textContent = record !== null ? record : "—";
+  document.getElementById("s-moyen").textContent  = moy !== null ? moy : "—";
+  document.getElementById("s-prec").textContent   = prec !== null ? prec + " %" : "—";
+  document.getElementById("s-lecons").textContent = Object.keys(data.lecons).length + "/" + LECONS.length;
+
+  // courbe
+  const g = document.getElementById("graphe");
+  if (avecMpm.length < 2){
+    g.innerHTML = '<p class="vide-msg">Deux sessions minimum pour tracer une courbe.</p>';
+  } else {
+    const pts = avecMpm.slice(-30).map(s => s.mpm);
+    const max = Math.max(...pts, 10) * 1.15, W = 600, H = 170, P = 12;
+    const x = i => P + i * (W - 2*P) / (pts.length - 1);
+    const y = v => H - P - (v / max) * (H - 2*P);
+    const ligne = pts.map((v,i) => x(i).toFixed(1) + "," + y(v).toFixed(1)).join(" ");
+    const aire = "M " + x(0).toFixed(1) + "," + (H-P) + " L " + ligne.split(" ").join(" L ") + " L " + x(pts.length-1).toFixed(1) + "," + (H-P) + " Z";
+    g.innerHTML =
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Courbe des mots par minute">' +
+      '<path d="' + aire + '" fill="rgba(240,180,41,.14)"/>' +
+      '<polyline points="' + ligne + '" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linejoin="round"/>' +
+      pts.map((v,i) => '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(v).toFixed(1) + '" r="2.5" fill="var(--amber)"/>').join("") +
+      '</svg>';
+  }
+
+  // touches fautives
+  const h = document.getElementById("heatmap");
+  const tab = Object.entries(data.touches)
+    .filter(([,s]) => s.essais >= 8 && s.erreurs > 0)
+    .map(([c,s]) => ({c, taux: s.erreurs / s.essais, n:s.essais}))
+    .sort((a,b) => b.taux - a.taux).slice(0, 10);
+  if (!tab.length){
+    h.innerHTML = '<p class="vide-msg">Aucune touche problématique pour l\'instant.</p>';
+  } else {
+    const pire = tab[0].taux;
+    h.innerHTML = '<div class="barres">' + tab.map(t =>
+      '<div class="barre"><code>' + (t.c === " " ? "␣" : t.c) + '</code>' +
+      '<div class="jauge"><div style="width:' + Math.round((t.taux/pire)*100) + '%"></div></div>' +
+      '<small>' + Math.round(t.taux*100) + ' %</small></div>').join("") + '</div>';
+  }
+
+  // historique
+  const hi = document.getElementById("historique");
+  const recents = data.sessions.slice(-12).reverse();
+  if (!recents.length){
+    hi.innerHTML = '<p class="vide-msg">Rien à afficher.</p>';
+  } else {
+    hi.innerHTML = '<table><thead><tr><th>Date</th><th>Séance</th><th>MPM</th><th>Précision</th></tr></thead><tbody>' +
+      recents.map(s => {
+        const d = new Date(s.d);
+        const q = d.toLocaleDateString("fr-FR", {day:"2-digit", month:"2-digit"}) + " " +
+                  d.toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"});
+        return '<tr><td>' + q + '</td><td>' + s.mode + '</td>' +
+               '<td class="num">' + (s.mpm !== null && s.mpm !== undefined ? s.mpm : (s.score ? s.score + " pts" : "—")) + '</td>' +
+               '<td class="num">' + (s.prec !== null && s.prec !== undefined ? s.prec + " %" : "—") + '</td></tr>';
+      }).join("") + '</tbody></table>';
+  }
+}
+document.getElementById("s-reset").onclick = () => {
+  let ok = true;
+  try { ok = confirm("Effacer toutes les leçons validées, les statistiques par touche et l'historique ?"); }
+  catch (e) { ok = true; }
+  if (!ok) return;
+  data = { lecons:{}, touches:{}, sessions:[] };
+  sauver();
+  dessinerLecons();
+  majStats();
+};
+
+/* =========================================================
+   9. NAVIGATION + CLAVIER GLOBAL
+   ========================================================= */
+let vue = "lecons";
+document.querySelectorAll("nav button").forEach(b => {
+  b.onclick = () => {
+    vue = b.dataset.vue;
+    document.querySelectorAll("nav button").forEach(x => x.setAttribute("aria-selected", String(x === b)));
+    document.querySelectorAll(".panneau").forEach(p => p.classList.toggle("actif", p.id === "vue-" + vue));
+    if (vue === "stats") majStats();
+  };
+});
+
+document.addEventListener("keydown", e => {
+  if (e.ctrlKey || e.altKey || e.metaKey) return;
+  if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") return;
+  if (vue === "lecons" && moteurLecon.estActif()) moteurLecon.saisir(e);
+  else if (vue === "vitesse" && moteurVitesse.estActif()) moteurVitesse.saisir(e);
+  else if (vue === "jeu") frapperJeu(e);
+  else if (e.key === " ") e.preventDefault();
+});
+
+/* =========================================================
+   10. DÉMARRAGE
+   ========================================================= */
+(async function init(){
+  await chargerData();
+  const prochaine = LECONS.findIndex((_, i) => !data.lecons[i]);
+  leconActive = prochaine === -1 ? 0 : prochaine;
+  dessinerLecons();
+  choisirLecon(leconActive);
+  majStats();
+})();
+</script>
+</body>
+</html>
