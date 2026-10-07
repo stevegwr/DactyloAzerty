@@ -1,326 +1,556 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="auto">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dactylo AZERTY</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<meta name="theme-color" content="#1B2A2E">
+<meta name="theme-color" content="#F3EFE6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131518" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Apprendre à taper au clavier AZERTY sans regarder ses mains.">
+<script>
+/* thème appliqué avant le premier rendu : pas de flash */
+try{var p=JSON.parse(localStorage.getItem("dactylo-azerty-prefs")||"{}");if(p.theme)document.documentElement.dataset.theme=p.theme;}catch(e){}
+</script>
 <style>
 :root{
-  --desk:#1B2A2E;
-  --desk-2:#24383D;
-  --desk-3:#2E464C;
-  --keycap:#EDEEE9;
-  --keycap-edge:#BFC3BB;
-  --ink:#16211F;
-  --text:#DFE9E6;
-  --muted:#8BA5A1;
-  --amber:#F0B429;
-  --f-auriculaire:#C4646E;
-  --f-annulaire:#D9954A;
-  --f-majeur:#6FA98A;
-  --f-index:#6C8FC4;
-  --f-pouce:#7A8A8C;
-  --erreur:#E05A5A;
-  --ui:"Segoe UI Variable Text","Segoe UI",Inter,system-ui,-apple-system,sans-serif;
-  --mono:"Cascadia Mono",Consolas,"SF Mono",ui-monospace,"DejaVu Sans Mono",monospace;
+  --bg:#F3EFE6; --surface:#FCFAF5; --surface-2:#ECE6DA; --line:#DED7C9;
+  --ink:#1F1D19; --muted:#776F62; --faint:#B2AA9B;
+  --accent:#D4491F; --accent-ink:#FFFFFF; --accent-soft:rgba(212,73,31,.12);
+  --ok:#2E8A57; --bad:#D03A3A; --bad-soft:rgba(208,58,58,.14);
+  --tab:#FFFFFF; --key:#FFFFFF; --key-edge:#D2CABA; --key-ink:#2B2822; --key-mod:#E7E1D4;
+  --f1:#D8607A; --f2:#E08D3C; --f3:#3F9D6E; --f4:#4C7FD3; --f0:#8A83A3;
+  --shadow:0 1px 2px rgba(50,35,10,.05),0 10px 30px -14px rgba(50,35,10,.22);
+  --ui:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --mono:"JetBrains Mono","Cascadia Mono","SF Mono",Menlo,Consolas,"DejaVu Sans Mono",ui-monospace,monospace;
+  --serif:"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,Georgia,serif;
+  color-scheme:light;
 }
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="clair"]){
+    --bg:#131518; --surface:#1B1E22; --surface-2:#24282E; --line:#30353C;
+    --ink:#ECE7DD; --muted:#948F85; --faint:#5C5A55;
+    --accent:#FF7A45; --accent-ink:#1A0E07; --accent-soft:rgba(255,122,69,.14);
+    --ok:#5CC48A; --bad:#FF6262; --bad-soft:rgba(255,98,98,.16);
+    --tab:#3A3F47; --key:#2A2E35; --key-edge:#15171A; --key-ink:#DAD5CA; --key-mod:#212429;
+    --f1:#E8728B; --f2:#EFA058; --f3:#55B985; --f4:#6C98E6; --f0:#9C96B6;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 32px -14px rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="sombre"]{
+  --bg:#131518; --surface:#1B1E22; --surface-2:#24282E; --line:#30353C;
+  --ink:#ECE7DD; --muted:#948F85; --faint:#5C5A55;
+  --accent:#FF7A45; --accent-ink:#1A0E07; --accent-soft:rgba(255,122,69,.14);
+  --ok:#5CC48A; --bad:#FF6262; --bad-soft:rgba(255,98,98,.16);
+  --tab:#3A3F47; --key:#2A2E35; --key-edge:#15171A; --key-ink:#DAD5CA; --key-mod:#212429;
+  --f1:#E8728B; --f2:#EFA058; --f3:#55B985; --f4:#6C98E6; --f0:#9C96B6;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 32px -14px rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
-  background:var(--desk);
-  color:var(--text);
-  font-family:var(--ui);
-  font-size:16px;
-  line-height:1.5;
-  min-height:100vh;
-  padding:0 0 32px;
+  background:var(--bg);color:var(--ink);font-family:var(--ui);
+  font-size:15px;line-height:1.5;min-height:100vh;
+  -webkit-font-smoothing:antialiased;
 }
-.wrap{max-width:900px;margin:0 auto;padding:0 16px}
-
-/* ---------- en-tête ---------- */
-header{padding:22px 0 14px}
-h1{
-  font-size:22px;font-weight:650;letter-spacing:-0.01em;margin:0 0 2px;
-}
-.sous{color:var(--muted);font-size:14px;margin:0}
-
-nav{display:flex;gap:4px;margin:16px 0 20px;flex-wrap:wrap}
-nav button{
-  font-family:inherit;font-size:14px;color:var(--muted);
-  background:transparent;border:1px solid transparent;border-radius:7px;
-  padding:7px 13px;cursor:pointer;
-}
-nav button:hover{color:var(--text);background:var(--desk-2)}
-nav button[aria-selected="true"]{
-  color:var(--ink);background:var(--keycap);font-weight:600;
-}
-nav button:focus-visible,button:focus-visible,select:focus-visible{
-  outline:2px solid var(--amber);outline-offset:2px
-}
-
-.panneau{display:none}
-.panneau.actif{display:block}
-
-/* ---------- rail de mesures ---------- */
-.mesures{
-  display:flex;gap:26px;align-items:baseline;
-  border-bottom:1px solid var(--desk-3);padding-bottom:12px;margin-bottom:20px;
-  flex-wrap:wrap;
-}
-.mesure b{
-  font-family:var(--mono);font-size:26px;font-weight:600;
-  font-variant-numeric:tabular-nums;color:var(--text);
-}
-.mesure span{color:var(--muted);font-size:13px;margin-left:6px}
-.mesure.cible b{color:var(--amber)}
-
-/* ---------- zone de frappe ---------- */
-.scene{
-  background:var(--desk-2);border-radius:12px;padding:22px 20px;margin-bottom:14px;
-}
-#ligne{
-  font-family:var(--mono);
-  font-size:clamp(17px,3.6vw,27px);
-  line-height:1.85;
-  letter-spacing:0.04em;
-  word-break:break-word;
-  min-height:2.4em;
-}
-#ligne i{font-style:normal;padding:1px 0;border-radius:3px}
-#ligne i.ok{color:var(--muted)}
-#ligne i.faux{color:#fff;background:var(--erreur)}
-#ligne i.actuel{
-  color:var(--ink);background:var(--amber);
-  box-shadow:0 0 0 2px var(--amber);
-}
-#ligne i.esp{white-space:pre}
-#ligne i.actuel.esp{background:var(--amber)}
-
-.indice{
-  margin-top:14px;color:var(--muted);font-size:14px;min-height:1.5em;
-  display:flex;align-items:center;gap:9px;
-}
-.pastille{width:11px;height:11px;border-radius:50%;flex:none}
-
-/* ---------- clavier ---------- */
-.clavier{margin-top:6px;display:flex;flex-direction:column;gap:5px}
-.rangee{display:flex;gap:5px}
-.k{
-  flex:var(--w,1) 1 0;
-  height:clamp(30px,7.2vw,46px);
-  background:var(--keycap);
-  color:var(--ink);
-  border-radius:5px;
-  border-bottom:2px solid var(--keycap-edge);
-  display:flex;align-items:center;justify-content:center;
-  font-size:clamp(9px,2.1vw,14px);
-  font-weight:500;
-  user-select:none;
-  transition:transform .05s ease, background .08s ease;
-}
-.k.mod{background:var(--desk-3);color:var(--muted);border-bottom-color:#1b2b2f;font-size:clamp(8px,1.7vw,11px)}
-.k.vide{background:transparent;border:none}
-.k.attendu{transform:translateY(2px);border-bottom-width:0;margin-bottom:2px;color:#fff}
-.k.frappee{transform:translateY(2px);border-bottom-width:0;margin-bottom:2px}
-.k[data-doigt="1"].attendu,.k[data-doigt="8"].attendu{background:var(--f-auriculaire)}
-.k[data-doigt="2"].attendu,.k[data-doigt="7"].attendu{background:var(--f-annulaire)}
-.k[data-doigt="3"].attendu,.k[data-doigt="6"].attendu{background:var(--f-majeur)}
-.k[data-doigt="4"].attendu,.k[data-doigt="5"].attendu{background:var(--f-index)}
-.k[data-doigt="0"].attendu{background:var(--f-pouce)}
-.k.repere{position:relative}
-.k.repere::after{
-  content:"";position:absolute;bottom:6px;width:34%;height:2px;
-  background:var(--keycap-edge);border-radius:2px;
-}
-.k.attendu.repere::after{background:rgba(255,255,255,.6)}
-
-.legende{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;color:var(--muted);font-size:13px}
-.legende span{display:flex;align-items:center;gap:6px}
-
-/* ---------- leçons ---------- */
-.grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:8px;margin-bottom:22px}
-.lecon{
-  text-align:left;font-family:inherit;cursor:pointer;
-  background:var(--desk-2);border:1px solid var(--desk-3);border-radius:9px;
-  padding:11px 12px;color:var(--text);
-}
-.lecon:hover{border-color:var(--muted)}
-.lecon[aria-current="true"]{border-color:var(--amber);background:var(--desk-3)}
-.lecon strong{display:block;font-size:13px;font-weight:600;margin-bottom:3px}
-.lecon em{
-  display:block;font-style:normal;font-family:var(--mono);
-  font-size:15px;color:var(--muted);letter-spacing:.12em;
-}
-.lecon .validee{color:var(--amber);font-size:12px}
-
-/* ---------- boutons ---------- */
-.actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
-.btn{
-  font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;
-  background:var(--keycap);color:var(--ink);border:none;border-radius:8px;padding:9px 17px;
-}
-.btn.creux{background:transparent;color:var(--text);border:1px solid var(--desk-3);font-weight:500}
-.btn:hover{opacity:.88}
-select{
-  font-family:inherit;font-size:14px;background:var(--desk-2);color:var(--text);
-  border:1px solid var(--desk-3);border-radius:8px;padding:9px 11px;
-}
-
-/* ---------- bilan ---------- */
-.bilan{
-  background:var(--desk-3);border-radius:10px;padding:16px 18px;margin-bottom:18px;
-  border-left:3px solid var(--amber);
-}
-.bilan h3{margin:0 0 6px;font-size:16px}
-.bilan p{margin:0;color:var(--text);font-size:14px}
-
-/* ---------- jeu ---------- */
-#arene{
-  position:relative;height:min(56vh,380px);background:var(--desk-2);
-  border-radius:12px;overflow:hidden;margin-bottom:12px;
-}
-.tombe{
-  position:absolute;font-family:var(--mono);font-size:19px;
-  background:var(--desk-3);color:var(--text);padding:4px 10px;border-radius:6px;
+[hidden]{display:none!important}
+button{font:inherit;color:inherit}
+kbd{
+  font-family:var(--mono);font-size:.78em;padding:1px 6px;border-radius:5px;
+  border:1px solid var(--line);border-bottom-width:2px;background:var(--surface);color:var(--muted);
   white-space:nowrap;
 }
-.tombe .fait{color:var(--amber);font-weight:700}
-.tombe.vise{box-shadow:0 0 0 2px var(--amber)}
-#sol{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--erreur);opacity:.55}
-#saisie{
-  font-family:var(--mono);font-size:18px;letter-spacing:.06em;
-  color:var(--amber);min-height:1.6em;margin-bottom:10px;
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1000px;margin:0 auto;padding:0 20px 40px}
+
+/* ---------- en-tête ---------- */
+header{
+  display:flex;align-items:center;gap:18px;padding:18px 0 22px;flex-wrap:wrap;
+}
+.marque{display:flex;align-items:center;gap:11px;margin-right:auto;text-decoration:none;color:inherit}
+.logo{
+  width:34px;height:34px;border-radius:9px;background:var(--key);display:grid;place-items:center;
+  font:700 17px var(--mono);color:var(--ink);
+  box-shadow:inset 0 -3px 0 var(--key-edge),0 0 0 1px var(--line);position:relative;
+}
+.logo::after{content:"";position:absolute;bottom:7px;width:9px;height:2px;border-radius:2px;background:var(--accent)}
+.marque h1{margin:0;font:600 21px/1 var(--serif);letter-spacing:-.01em}
+.marque h1 small{font:600 11px var(--mono);letter-spacing:.14em;color:var(--muted);margin-left:6px;vertical-align:2px}
+
+nav[role=tablist]{
+  display:flex;gap:2px;background:var(--surface-2);padding:3px;border-radius:11px;
+}
+nav[role=tablist] button{
+  border:0;background:transparent;color:var(--muted);font-size:14px;font-weight:500;
+  padding:7px 14px;border-radius:8px;cursor:pointer;transition:color .15s,background-color .15s;
+}
+nav[role=tablist] button:hover{color:var(--ink)}
+nav[role=tablist] button[aria-selected="true"]{
+  background:var(--tab);color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08),0 0 0 1px var(--line);
+}
+.outils{display:flex;gap:6px}
+.icone{
+  width:36px;height:36px;display:grid;place-items:center;border-radius:9px;cursor:pointer;
+  border:1px solid var(--line);background:var(--surface);color:var(--muted);
+  transition:color .15s,border-color .15s;
+}
+.icone:hover{color:var(--ink);border-color:var(--faint)}
+.icone[aria-pressed="false"]{opacity:.55}
+.icone svg{width:18px;height:18px}
+.icone:disabled{opacity:.3;cursor:default}
+
+/* ---------- briques communes ---------- */
+.surtitre{margin:0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+  font-size:14px;font-weight:600;border-radius:10px;padding:10px 16px;
+  background:var(--accent);color:var(--accent-ink);border:1px solid transparent;
+  transition:filter .15s,transform .05s;
+}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(1px)}
+.btn kbd{background:rgba(255,255,255,.18);border-color:rgba(0,0,0,.12);color:inherit}
+.btn.creux{background:var(--surface);color:var(--ink);border-color:var(--line);font-weight:500}
+.btn.creux kbd{background:var(--surface-2);border-color:var(--line);color:var(--muted)}
+.btn.creux:hover{border-color:var(--faint);filter:none}
+.btn:disabled{opacity:.4;cursor:default}
+
+.segment{display:inline-flex;background:var(--surface-2);padding:3px;border-radius:10px;gap:2px}
+.segment button{
+  border:0;background:transparent;color:var(--muted);font-size:13.5px;font-weight:500;
+  padding:6px 12px;border-radius:7px;cursor:pointer;
+}
+.segment button[aria-checked="true"]{background:var(--tab);color:var(--ink);font-weight:600;box-shadow:0 0 0 1px var(--line)}
+
+.vide-msg{color:var(--muted);font-size:14px;margin:6px 0}
+
+/* ---------- mesures ---------- */
+.mesures{display:flex;gap:30px;align-items:flex-end;flex-wrap:wrap;margin:0 0 12px;padding:0 4px}
+.mesure{display:flex;flex-direction:column}
+.mesure b{
+  font:600 30px/1.1 var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em;
+  transition:color .2s;
+}
+.mesure span{font-size:12px;color:var(--muted);letter-spacing:.02em}
+.mesure span em{font-style:normal;color:var(--faint)}
+.mesure.atteint b{color:var(--ok)}
+.mesure.accent b{color:var(--accent)}
+.mesure.pause b{color:var(--faint)}
+.mesures .droite{margin-left:auto;text-align:right}
+
+/* ---------- poste de frappe ---------- */
+.poste{position:relative}
+.scene{
+  position:relative;background:var(--surface);border:1px solid var(--line);border-radius:16px;
+  padding:26px 30px 16px;box-shadow:var(--shadow);overflow:hidden;
+}
+.progression{position:absolute;left:0;top:0;height:3px;width:100%;background:var(--accent);
+  transform-origin:left;transform:scaleX(0);transition:transform .2s ease-out}
+.fenetre{
+  --fs:clamp(19px,1.4vw + 12px,29px);
+  font-family:var(--mono);font-size:var(--fs);line-height:1.9;
+  height:calc(3 * 1.9em);overflow:hidden;position:relative;
+}
+.texte{position:relative;white-space:pre-wrap;transition:transform .18s ease-out;color:var(--ink)}
+.texte span{border-radius:3px}
+.texte span.ok{color:var(--faint)}
+.texte span.corr{color:var(--faint);text-decoration:underline 2px var(--bad);text-underline-offset:5px}
+.texte span.ici{background:var(--accent-soft)}
+.texte span.faux{color:var(--bad);background:var(--bad-soft)}
+.caret{
+  position:absolute;left:0;top:.35em;width:2px;height:1.2em;border-radius:2px;background:var(--accent);
+  transition:transform .09s ease-out;pointer-events:none;
+}
+.caret.attente{animation:clignote 1.05s steps(1) infinite}
+@keyframes clignote{50%{opacity:0}}
+.indice{
+  display:flex;align-items:center;gap:9px;min-height:24px;margin:12px 0 0;
+  font-size:14px;color:var(--muted);
+}
+.indice b{color:var(--ink);font-weight:600;font-family:var(--mono)}
+.pastille{width:10px;height:10px;border-radius:50%;flex:none;background:var(--c,var(--faint))}
+.alerte-maj{
+  position:absolute;right:16px;top:14px;font-size:12px;font-weight:600;
+  background:var(--bad);color:#fff;padding:3px 9px;border-radius:20px;
 }
 
-/* ---------- stats ---------- */
-.cartes{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:22px}
-.carte{background:var(--desk-2);border-radius:10px;padding:14px}
-.carte b{display:block;font-family:var(--mono);font-size:25px;font-weight:600;font-variant-numeric:tabular-nums}
-.carte span{color:var(--muted);font-size:13px}
-h2{font-size:15px;font-weight:600;margin:26px 0 10px}
-h2:first-of-type{margin-top:0}
-.vide-msg{color:var(--muted);font-size:14px}
-svg{width:100%;height:170px;display:block}
-.barres{display:flex;flex-direction:column;gap:6px}
-.barre{display:flex;align-items:center;gap:10px;font-size:14px}
-.barre code{
-  font-family:var(--mono);width:2ch;text-align:center;
-  background:var(--keycap);color:var(--ink);border-radius:4px;padding:2px 7px;
+/* ---------- clavier ---------- */
+.clavier-zone{margin-top:18px}
+body.sans-clavier .clavier-zone{display:none}
+.clavier{
+  --g:5px;container-type:inline-size;max-width:760px;margin:0 auto;
+  display:flex;flex-direction:column;gap:var(--g);user-select:none;
 }
-.barre .jauge{flex:1;height:8px;background:var(--desk-3);border-radius:4px;overflow:hidden}
-.barre .jauge div{height:100%;background:var(--erreur)}
-.barre small{color:var(--muted);font-variant-numeric:tabular-nums;width:6ch;text-align:right}
+.rangee{display:flex;gap:var(--g)}
+.k{
+  --zc:var(--key);
+  flex:var(--w) 1 0;height:44px;font-size:13px;
+  flex:0 0 calc(var(--w) * (100cqw + var(--g)) / 15 - var(--g));
+  height:calc(((100cqw + var(--g)) / 15 - var(--g)) * .94);
+  font-size:calc(100cqw / 15 * .3);
+  position:relative;display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--zc) 9%,var(--key));color:var(--key-ink);
+  border-radius:7px;box-shadow:inset 0 -3px 0 var(--key-edge),0 0 0 1px color-mix(in srgb,var(--key-edge) 60%,transparent);
+  font-weight:500;line-height:1;
+  transition:transform .06s,background-color .12s,box-shadow .06s,color .12s;
+}
+.k[data-z="1"]{--zc:var(--f1)} .k[data-z="2"]{--zc:var(--f2)} .k[data-z="3"]{--zc:var(--f3)}
+.k[data-z="4"]{--zc:var(--f4)} .k[data-z="0"]{--zc:var(--f0)}
+.k.mod{background:var(--key-mod);color:var(--muted);font-size:calc(100cqw / 15 * .2);justify-content:flex-start;padding-left:.8em}
+.k.mod[data-z]{background:color-mix(in srgb,var(--zc) 6%,var(--key-mod))}
+.k.vide{background:transparent;box-shadow:none}
+.k.double{flex-direction:column;gap:.18em}
+.k .s{font-size:.78em;opacity:.55}
+.k.repere::after{content:"";position:absolute;bottom:22%;width:22%;height:2px;border-radius:2px;background:currentColor;opacity:.45}
+.k.cible{
+  background:var(--zc);color:#fff;transform:translateY(-1px);
+  box-shadow:inset 0 -3px 0 rgba(0,0,0,.2),0 0 0 3px color-mix(in srgb,var(--zc) 30%,transparent);
+}
+.k.cible .s{opacity:.8}
+.k.presse{transform:translateY(2px);box-shadow:inset 0 -1px 0 var(--key-edge),0 0 0 1px var(--key-edge)}
+.k.presse.rate{background:var(--bad);color:#fff}
+.legende{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:14px;color:var(--muted);font-size:12.5px}
+.legende span{display:flex;align-items:center;gap:6px}
+
+/* ---------- résultat (superposé) ---------- */
+.resultat{
+  position:absolute;inset:-6px;z-index:5;display:grid;place-items:center;padding:12px;
+  background:color-mix(in srgb,var(--bg) 72%,transparent);
+  -webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);
+  border-radius:18px;animation:apparait .18s ease-out;
+}
+@keyframes apparait{from{opacity:0}to{opacity:1}}
+.carte-res{
+  background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);
+  padding:26px 28px 22px;width:min(470px,100%);animation:monte .22s ease-out;
+}
+@keyframes monte{from{transform:translateY(8px);opacity:.4}to{transform:none;opacity:1}}
+.carte-res h3{margin:4px 0 16px;font:600 26px/1.15 var(--serif);letter-spacing:-.01em}
+.carte-res h3 .badge{
+  font:600 11px var(--ui);letter-spacing:.06em;text-transform:uppercase;vertical-align:5px;margin-left:8px;
+  background:var(--accent-soft);color:var(--accent);padding:3px 8px;border-radius:20px;
+}
+.res-chiffres{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.res-chiffres div{background:var(--surface-2);border-radius:12px;padding:12px 12px 10px}
+.res-chiffres b{display:block;font:600 26px/1.1 var(--mono);font-variant-numeric:tabular-nums}
+.res-chiffres b.ok{color:var(--ok)} .res-chiffres b.ko{color:var(--bad)}
+.res-chiffres span{font-size:12px;color:var(--muted)}
+.res-chiffres small{display:block;font-size:11.5px;color:var(--faint);margin-top:2px}
+.res-note{font-size:14px;color:var(--muted);margin:0 0 18px}
+.res-note kbd{font-size:13px;color:var(--ink)}
+.res-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+
+/* ---------- leçons ---------- */
+.lecon-tete{display:flex;align-items:flex-end;gap:16px;margin-bottom:14px}
+.lecon-info{flex:1;min-width:0}
+.lecon-info h2{margin:3px 0 8px;font:600 28px/1.15 var(--serif);letter-spacing:-.015em}
+.puces{display:flex;gap:5px;flex-wrap:wrap;align-items:center;min-height:26px}
+.puces kbd{font-size:13px;color:var(--ink);padding:2px 8px}
+.puces .txt{font-size:13px;color:var(--muted);margin-left:4px}
+.lecon-nav{display:flex;gap:6px}
+.rail{
+  display:flex;gap:4px;list-style:none;padding:0 0 4px;margin:0 0 22px;overflow-x:auto;scrollbar-width:thin;
+}
+.rail button{
+  min-width:32px;height:32px;padding:0 6px;border-radius:8px;cursor:pointer;flex:none;
+  border:1px solid var(--line);background:var(--surface);color:var(--muted);
+  font:600 12.5px var(--mono);position:relative;transition:border-color .15s,background-color .15s;
+}
+.rail button:hover{border-color:var(--faint);color:var(--ink)}
+.rail button.faite{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.rail button[aria-current="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.rail .sep{width:1px;background:var(--line);margin:6px 4px;flex:none}
+
+/* ---------- vitesse ---------- */
+.barre-outils{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:22px}
+.barre-outils .btn{margin-left:auto}
+
+/* ---------- jeu ---------- */
+.arene{
+  position:relative;height:min(58vh,420px);min-height:280px;border-radius:16px;overflow:hidden;
+  background:
+    linear-gradient(var(--surface),var(--surface)) padding-box;
+  border:1px solid var(--line);box-shadow:var(--shadow);
+  background-image:radial-gradient(circle at 1px 1px,var(--line) 1px,transparent 0);
+  background-size:22px 22px;background-color:var(--surface);
+}
+.arene.choc{animation:choc .3s}
+@keyframes choc{0%{box-shadow:inset 0 0 0 3px var(--bad)}100%{box-shadow:inset 0 0 0 0 transparent}}
+.sol{position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,transparent,var(--bad),transparent);opacity:.6}
+.tombe{
+  position:absolute;left:0;top:0;will-change:transform;
+  font:500 19px var(--mono);white-space:nowrap;
+  background:var(--surface);color:var(--ink);padding:5px 11px;border-radius:9px;
+  border:1px solid var(--line);box-shadow:0 2px 6px -2px rgba(0,0,0,.15);
+}
+.tombe b{color:var(--accent);font-weight:700}
+.tombe.vise{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.tombe.boum{animation:boum .22s ease-out forwards}
+@keyframes boum{to{opacity:0;scale:1.25;filter:blur(2px)}}
+.tombe.crash{background:var(--bad);color:#fff;border-color:var(--bad);animation:crash .35s ease-in forwards}
+@keyframes crash{to{opacity:0}}
+.voile{
+  position:absolute;inset:0;display:grid;place-items:center;z-index:3;padding:16px;
+  background:color-mix(in srgb,var(--surface) 70%,transparent);
+  -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);text-align:center;
+}
+.voile .carte-res{text-align:left}
+.jeu-saisie{
+  display:flex;align-items:center;justify-content:center;gap:2px;min-height:52px;margin-top:14px;
+  font:600 24px var(--mono);letter-spacing:.04em;color:var(--accent);
+}
+.jeu-saisie .caret-jeu{width:2px;height:1.1em;background:var(--accent);animation:clignote 1.05s steps(1) infinite}
+
+/* ---------- progression ---------- */
+.cartes{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:28px}
+.carte{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.carte b{display:block;font:600 26px/1.15 var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.carte span{color:var(--muted);font-size:12.5px}
+.bloc{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:16px}
+.bloc-tete{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.bloc h2{margin:0;font:600 19px var(--serif);margin-right:auto}
+.courbe svg{display:block;width:100%;height:auto;overflow:visible}
+.courbe .grille line{stroke:var(--line)}
+.courbe .grille text,.courbe .axe text{fill:var(--muted);font:11px var(--ui)}
+.courbe .trait{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}
+.courbe .aire{fill:var(--accent-soft)}
+.courbe circle{fill:var(--surface);stroke:var(--accent);stroke-width:2}
+.courbe circle.v{fill:var(--accent)}
+.legende-courbe{display:flex;gap:14px;font-size:12px;color:var(--muted)}
+.legende-courbe i{display:inline-block;width:9px;height:9px;border-radius:50%;border:2px solid var(--accent);margin-right:5px;vertical-align:-1px}
+.legende-courbe i.v{background:var(--accent)}
+.chaleur .k{cursor:default}
+.chaleur .k.mesuree{background:color-mix(in srgb,var(--bad) var(--heat),var(--key))}
+.chaleur.lent .k.mesuree{background:color-mix(in srgb,var(--f4) var(--heat),var(--key))}
+.a-revoir{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:14px;font-size:13px;color:var(--muted)}
+.a-revoir kbd{font-size:13px;color:var(--ink)}
 table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--desk-3)}
-th{color:var(--muted);font-weight:500;font-size:13px}
-td.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+th{color:var(--muted);font-weight:500;font-size:12.5px}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+th.num{text-align:right}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.actions .danger{margin-left:auto;color:var(--bad)}
 
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* ---------- pied ---------- */
+.raccourcis{
+  display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:22px;
+  font-size:12.5px;color:var(--muted);
+}
+.toast{
+  position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;pointer-events:none;
+  background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;
+  transition:opacity .2s,transform .2s;z-index:20;
+}
+.toast.vu{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:700px){
+  .wrap{padding:0 14px 32px}
+  header{gap:12px}
+  nav[role=tablist]{order:3;width:100%}
+  nav[role=tablist] button{flex:1;padding:7px 6px}
+  .scene{padding:22px 16px 12px}
+  .mesures{gap:20px}
+  .mesure b{font-size:24px}
+  .lecon-info h2{font-size:23px}
+  .res-chiffres b{font-size:21px}
+  .barre-outils .btn{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
 
 <header>
-  <h1>Dactylo AZERTY</h1>
-  <p class="sous">Apprendre à taper sans regarder ses mains, une rangée à la fois.</p>
+  <a class="marque" href="#lecons" aria-label="Dactylo AZERTY — accueil">
+    <span class="logo" aria-hidden="true">A</span>
+    <h1>Dactylo<small>AZERTY</small></h1>
+  </a>
+  <nav role="tablist" aria-label="Sections">
+    <button role="tab" id="tab-lecons"  data-vue="lecons"  aria-controls="vue-lecons">Leçons</button>
+    <button role="tab" id="tab-vitesse" data-vue="vitesse" aria-controls="vue-vitesse">Vitesse</button>
+    <button role="tab" id="tab-jeu"     data-vue="jeu"     aria-controls="vue-jeu">Jeu</button>
+    <button role="tab" id="tab-stats"   data-vue="stats"   aria-controls="vue-stats">Progression</button>
+  </nav>
+  <div class="outils">
+    <button class="icone" id="p-clavier" aria-pressed="true" title="Afficher le clavier">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M8 14h8"/></svg>
+    </button>
+    <button class="icone" id="p-theme" title="Thème : automatique">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>
+    </button>
+  </div>
 </header>
 
-<nav role="tablist">
-  <button role="tab" data-vue="lecons" aria-selected="true">Leçons</button>
-  <button role="tab" data-vue="vitesse" aria-selected="false">Vitesse</button>
-  <button role="tab" data-vue="jeu" aria-selected="false">Jeu</button>
-  <button role="tab" data-vue="stats" aria-selected="false">Progression</button>
-</nav>
-
+<main>
 <!-- ============ LEÇONS ============ -->
-<section class="panneau actif" id="vue-lecons">
-  <div class="grille" id="liste-lecons"></div>
-  <div class="mesures">
-    <div class="mesure"><b id="l-mpm">0</b><span>mots/min</span></div>
-    <div class="mesure"><b id="l-prec">100</b><span>% de précision</span></div>
-    <div class="mesure"><b id="l-avance">0</b><span>% de la série</span></div>
-    <div class="mesure cible"><b id="l-cible">—</b><span>objectif</span></div>
+<section class="vue" id="vue-lecons" role="tabpanel" aria-labelledby="tab-lecons">
+  <div class="lecon-tete">
+    <div class="lecon-info">
+      <p class="surtitre">Leçon <span id="l-num">1</span> / <span id="l-total">21</span> · <span id="l-faites">0</span> validées</p>
+      <h2 id="l-titre">Position de repos</h2>
+      <div class="puces" id="l-puces"></div>
+    </div>
+    <div class="lecon-nav">
+      <button class="icone" id="l-precedente" aria-label="Leçon précédente" title="Leçon précédente (←)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <button class="icone" id="l-suivante" aria-label="Leçon suivante" title="Leçon suivante (→)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+    </div>
   </div>
-  <div class="scene">
-    <div id="ligne"></div>
-    <div class="indice" id="l-indice"></div>
-  </div>
-  <div id="bilan-lecon"></div>
-  <div class="actions">
-    <button class="btn" id="l-rejouer">Nouvelle série</button>
-    <button class="btn creux" id="l-suivante">Leçon suivante</button>
+  <ol class="rail" id="l-rail" aria-label="Toutes les leçons"></ol>
+
+  <div class="poste">
+    <div class="mesures">
+      <div class="mesure" id="l-m-mpm"><b>—</b><span>mots/min <em>· objectif <span id="l-o-mpm"></span></em></span></div>
+      <div class="mesure" id="l-m-prec"><b>—</b><span>% précision <em>· objectif <span id="l-o-prec"></span></em></span></div>
+    </div>
+    <div class="scene">
+      <div class="progression" id="l-barre"></div>
+      <span class="alerte-maj" hidden>Verr. Maj activé</span>
+      <div class="fenetre" id="l-fenetre" aria-label="Texte à taper"></div>
+      <p class="indice" id="l-indice"></p>
+    </div>
+    <div class="clavier-zone" id="l-clavier"></div>
+    <div class="resultat" id="l-resultat" hidden aria-live="polite"></div>
   </div>
 </section>
 
 <!-- ============ VITESSE ============ -->
-<section class="panneau" id="vue-vitesse">
-  <div class="actions">
-    <select id="v-duree">
-      <option value="30">30 secondes</option>
-      <option value="60" selected>1 minute</option>
-      <option value="120">2 minutes</option>
-      <option value="300">5 minutes</option>
-    </select>
-    <button class="btn" id="v-lancer">Lancer le test</button>
+<section class="vue" id="vue-vitesse" role="tabpanel" aria-labelledby="tab-vitesse" hidden>
+  <div class="barre-outils">
+    <div class="segment" role="radiogroup" aria-label="Durée" id="v-durees">
+      <button role="radio" data-val="30">30 s</button>
+      <button role="radio" data-val="60">1 min</button>
+      <button role="radio" data-val="120">2 min</button>
+      <button role="radio" data-val="300">5 min</button>
+    </div>
+    <div class="segment" role="radiogroup" aria-label="Type de texte" id="v-types">
+      <button role="radio" data-val="mots">Mots</button>
+      <button role="radio" data-val="phrases">Phrases</button>
+    </div>
+    <button class="btn creux" id="v-nouveau">Nouveau texte <kbd>Échap</kbd></button>
   </div>
-  <div class="mesures">
-    <div class="mesure"><b id="v-chrono">1:00</b><span>restant</span></div>
-    <div class="mesure"><b id="v-mpm">0</b><span>mots/min</span></div>
-    <div class="mesure"><b id="v-prec">100</b><span>% de précision</span></div>
+  <div class="poste">
+    <div class="mesures">
+      <div class="mesure accent" id="v-m-chrono"><b>1:00</b><span>restant</span></div>
+      <div class="mesure" id="v-m-mpm"><b>—</b><span>mots/min</span></div>
+      <div class="mesure" id="v-m-prec"><b>—</b><span>% précision</span></div>
+      <div class="mesure droite" id="v-m-record"><b>—</b><span>record</span></div>
+    </div>
+    <div class="scene">
+      <div class="progression" id="v-barre"></div>
+      <span class="alerte-maj" hidden>Verr. Maj activé</span>
+      <div class="fenetre" id="v-fenetre" aria-label="Texte à taper"></div>
+      <p class="indice" id="v-indice"></p>
+    </div>
+    <div class="clavier-zone" id="v-clavier"></div>
+    <div class="resultat" id="v-resultat" hidden aria-live="polite"></div>
   </div>
-  <div class="scene">
-    <div id="v-ligne"></div>
-    <div class="indice" id="v-indice"></div>
-  </div>
-  <div id="bilan-vitesse"></div>
 </section>
 
 <!-- ============ JEU ============ -->
-<section class="panneau" id="vue-jeu">
+<section class="vue" id="vue-jeu" role="tabpanel" aria-labelledby="tab-jeu" hidden>
   <div class="mesures">
-    <div class="mesure"><b id="j-score">0</b><span>points</span></div>
-    <div class="mesure"><b id="j-niveau">1</b><span>niveau</span></div>
-    <div class="mesure"><b id="j-vies">♥♥♥</b><span>vies</span></div>
+    <div class="mesure accent" id="j-m-score"><b>0</b><span>points</span></div>
+    <div class="mesure" id="j-m-niveau"><b>1</b><span>niveau</span></div>
+    <div class="mesure" id="j-m-vies"><b>♥♥♥</b><span>vies</span></div>
+    <div class="mesure droite" id="j-m-record"><b>—</b><span>record</span></div>
   </div>
-  <div id="arene"><div id="sol"></div></div>
-  <div id="saisie">&nbsp;</div>
-  <div class="actions">
-    <button class="btn" id="j-lancer">Commencer</button>
-    <span class="vide-msg">Tape un mot en entier pour le faire disparaître. Échap pour effacer la saisie.</span>
+  <div class="arene" id="arene">
+    <div class="sol"></div>
+    <div class="voile" id="j-voile"></div>
   </div>
+  <div class="jeu-saisie" aria-live="off"><span id="j-saisie"></span><span class="caret-jeu"></span></div>
 </section>
 
-<!-- ============ STATS ============ -->
-<section class="panneau" id="vue-stats">
+<!-- ============ PROGRESSION ============ -->
+<section class="vue" id="vue-stats" role="tabpanel" aria-labelledby="tab-stats" hidden>
   <div class="cartes">
     <div class="carte"><b id="s-record">—</b><span>meilleur MPM</span></div>
-    <div class="carte"><b id="s-moyen">—</b><span>MPM moyen (10 derniers)</span></div>
+    <div class="carte"><b id="s-moyen">—</b><span>MPM moyen (10 dern.)</span></div>
     <div class="carte"><b id="s-prec">—</b><span>précision moyenne</span></div>
-    <div class="carte"><b id="s-lecons">0/17</b><span>leçons validées</span></div>
+    <div class="carte"><b id="s-lecons">0/0</b><span>leçons validées</span></div>
+    <div class="carte"><b id="s-serie">0</b><span>jours d'affilée</span></div>
+    <div class="carte"><b id="s-temps">—</b><span>temps de pratique</span></div>
   </div>
 
-  <h2>Évolution de la vitesse</h2>
-  <div id="graphe"><p class="vide-msg">Aucune session enregistrée pour l'instant.</p></div>
+  <div class="bloc">
+    <div class="bloc-tete">
+      <h2>Évolution de la vitesse</h2>
+      <div class="legende-courbe"><span><i></i>Leçons</span><span><i class="v"></i>Tests de vitesse</span></div>
+    </div>
+    <div class="courbe" id="s-courbe"></div>
+  </div>
 
-  <h2>Touches qui te ralentissent</h2>
-  <div id="heatmap"><p class="vide-msg">Les statistiques par touche apparaîtront après quelques séries.</p></div>
+  <div class="bloc">
+    <div class="bloc-tete">
+      <h2>Carte du clavier</h2>
+      <div class="segment" role="radiogroup" aria-label="Indicateur" id="s-indic">
+        <button role="radio" data-val="erreurs">Erreurs</button>
+        <button role="radio" data-val="lenteur">Lenteur</button>
+      </div>
+    </div>
+    <div id="s-chaleur"></div>
+    <div class="a-revoir" id="s-revoir"></div>
+  </div>
 
-  <h2>Historique</h2>
-  <div id="historique"><p class="vide-msg">Rien à afficher.</p></div>
+  <div class="bloc">
+    <div class="bloc-tete"><h2>Historique</h2></div>
+    <div id="s-historique"></div>
+  </div>
 
-  <div class="actions" style="margin-top:24px">
-    <button class="btn creux" id="s-reset">Effacer ma progression</button>
+  <div class="actions">
+    <button class="btn creux" id="s-exporter">Exporter ma progression</button>
+    <button class="btn creux" id="s-importer">Importer…</button>
+    <input type="file" id="s-fichier" accept="application/json,.json" hidden>
+    <button class="btn creux danger" id="s-reset">Tout effacer</button>
   </div>
 </section>
+</main>
 
+<div class="raccourcis" id="raccourcis"></div>
 </div>
+<div class="toast" id="toast" role="status"></div>
 
 <script>
 "use strict";
+
+/* =========================================================
+   0. OUTILS
+   ========================================================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+const alea = n => Math.floor(Math.random() * n);
+const choisir = arr => arr[alea(arr.length)];
+const MOUVEMENT_REDUIT = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function h(tag, cls, html){
+  const el = document.createElement(tag);
+  if (cls) el.className = cls;
+  if (html !== undefined) el.innerHTML = html;
+  return el;
+}
+function toast(msg){
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.add("vu");
+  clearTimeout(toast.t);
+  toast.t = setTimeout(() => t.classList.remove("vu"), 2600);
+}
+function mmss(ms){
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+}
 
 /* =========================================================
    1. STOCKAGE (window.storage si dispo, sinon localStorage)
@@ -346,183 +576,263 @@ const Store = {
 };
 
 const CLE = "dactylo-azerty-v1";
+const CLE_PREFS = "dactylo-azerty-prefs";
 let data = { lecons:{}, touches:{}, sessions:[] };
+let statsAJour = false;
 
-async function chargerData(){
-  const d = await Store.lire(CLE);
-  if (d && typeof d === "object"){
-    data.lecons   = d.lecons   || {};
-    data.touches  = d.touches  || {};
-    data.sessions = d.sessions || [];
-  }
+function normaliser(d){
+  const o = d && typeof d === "object" ? d : {};
+  return {
+    lecons:   o.lecons && typeof o.lecons === "object" ? o.lecons : {},
+    touches:  o.touches && typeof o.touches === "object" ? o.touches : {},
+    sessions: Array.isArray(o.sessions) ? o.sessions : []
+  };
 }
-function sauver(){ Store.ecrire(CLE, data); }
+let modifie = false;               // évite d'écraser les données d'un autre onglet sans raison
+function sauver(){ modifie = false; Store.ecrire(CLE, data); }
+function sauverSiModifie(){ if (modifie) sauver(); }
+function ajouterSession(s){
+  data.sessions.push(s);
+  if (data.sessions.length > 300) data.sessions = data.sessions.slice(-300);
+  statsAJour = false;
+  sauver();
+}
+
+const prefs = Object.assign({ theme:"auto", clavier:true, duree:60, type:"mots", indic:"erreurs" },
+  (() => { try{ return JSON.parse(localStorage.getItem(CLE_PREFS)) || {}; }catch(e){ return {}; } })());
+function ecrirePrefs(){ try{ localStorage.setItem(CLE_PREFS, JSON.stringify(prefs)); }catch(e){} }
 
 /* =========================================================
-   2. CLAVIER AZERTY — [caractère, doigt, largeur, libellé]
+   2. CLAVIER AZERTY
    doigts : 1..4 = auriculaire→index gauche, 5..8 = index→auriculaire droit, 0 = pouce
    ========================================================= */
-const RANGEES = [
-  [["²",1],["&",1],["é",2],['"',3],["'",4],["(",4],["-",5],["è",5],["_",6],["ç",7],["à",8],[")",8],["=",8],[null,8,2,"⌫"]],
-  [[null,1,1.5,"Tab"],["a",1],["z",2],["e",3],["r",4],["t",4],["y",5],["u",5],["i",6],["o",7],["p",8],["^",8],["$",8],[null,0,1.5,""]],
-  [[null,1,1.75,"Maj⇩"],["q",1],["s",2],["d",3],["f",4],["g",4],["h",5],["j",5],["k",6],["l",7],["m",8],["ù",8],["*",8],[null,8,1.25,"⏎"]],
-  [[null,1,1.25,"⇧"],["<",1],["w",1],["x",2],["c",3],["v",4],["b",4],["n",5],[",",5],[";",6],[":",7],["!",8],[null,8,2.75,"⇧"]],
-  [[null,1,1.75,"Ctrl"],[null,2,1.5,"Alt"],[" ",0,8.5,"Espace"],[null,7,1.5,"AltGr"],[null,8,1.75,"Ctrl"]]
-];
 const NOM_DOIGT = {
   1:"auriculaire gauche", 2:"annulaire gauche", 3:"majeur gauche", 4:"index gauche",
   5:"index droit", 6:"majeur droit", 7:"annulaire droit", 8:"auriculaire droit", 0:"pouce"
 };
-const COULEUR_DOIGT = {
-  1:"var(--f-auriculaire)",8:"var(--f-auriculaire)",
-  2:"var(--f-annulaire)",  7:"var(--f-annulaire)",
-  3:"var(--f-majeur)",     6:"var(--f-majeur)",
-  4:"var(--f-index)",      5:"var(--f-index)",
-  0:"var(--f-pouce)"
-};
-const DOIGT_DE = {};       // caractère -> doigt
+const ZONE = {1:1, 8:1, 2:2, 7:2, 3:3, 6:3, 4:4, 5:4, 0:0};
+const k = (base, shift, doigt, code) => ({ base, shift, doigt, code, w:1 });
+const L = (base, doigt, code) => ({ base, shift:base.toUpperCase(), doigt, code, w:1, lettre:true });
+const m = (mod, w, code, doigt, id) => ({ mod, w, code, doigt, id });
 
-function construireClavier(){
-  const cl = document.createElement("div");
-  cl.className = "clavier";
-  RANGEES.forEach(rang => {
-    const r = document.createElement("div");
-    r.className = "rangee";
-    rang.forEach(([car, doigt, larg, lib]) => {
-      const k = document.createElement("div");
-      k.className = "k";
-      k.style.setProperty("--w", larg || 1);
-      k.dataset.doigt = doigt;
-      if (car === null){
-        k.classList.add(lib === "" ? "vide" : "mod");
-        k.textContent = lib;
-      } else {
-        k.dataset.car = car;
-        k.textContent = car === " " ? "Espace" : car;
-        if (car === " ") k.style.setProperty("--w", larg);
-        if (car === "f" || car === "j") k.classList.add("repere");
-        DOIGT_DE[car] = doigt;
+const DISPOSITION = [
+  [k("²",null,1,"Backquote"), k("&","1",1,"Digit1"), k("é","2",2,"Digit2"), k('"',"3",3,"Digit3"),
+   k("'","4",4,"Digit4"), k("(","5",4,"Digit5"), k("-","6",5,"Digit6"), k("è","7",5,"Digit7"),
+   k("_","8",6,"Digit8"), k("ç","9",7,"Digit9"), k("à","0",8,"Digit0"), k(")","°",8,"Minus"),
+   k("=","+",8,"Equal"), m("⌫",2,"Backspace")],
+  [m("Tab",1.5,"Tab"), L("a",1,"KeyQ"), L("z",2,"KeyW"), L("e",3,"KeyE"), L("r",4,"KeyR"), L("t",4,"KeyT"),
+   L("y",5,"KeyY"), L("u",5,"KeyU"), L("i",6,"KeyI"), L("o",7,"KeyO"), L("p",8,"KeyP"),
+   k("^","¨",8,"BracketLeft"), k("$","£",8,"BracketRight"), m("Entrée",1.5,"Enter")],
+  [m("Verr. maj",1.75,"CapsLock"), L("q",1,"KeyA"), L("s",2,"KeyS"), L("d",3,"KeyD"), L("f",4,"KeyF"),
+   L("g",4,"KeyG"), L("h",5,"KeyH"), L("j",5,"KeyJ"), L("k",6,"KeyK"), L("l",7,"KeyL"), L("m",8,"Semicolon"),
+   k("ù","%",8,"Quote"), k("*","µ",8,"Backslash"), {vide:true, w:1.25}],
+  [m("Maj",1.25,"ShiftLeft",1,"shiftG"), k("<",">",1,"IntlBackslash"), L("w",1,"KeyZ"), L("x",2,"KeyX"),
+   L("c",3,"KeyC"), L("v",4,"KeyV"), L("b",4,"KeyB"), L("n",5,"KeyN"), k(",","?",5,"KeyM"),
+   k(";",".",6,"Comma"), k(":","/",7,"Period"), k("!","§",8,"Slash"), m("Maj",2.75,"ShiftRight",8,"shiftD")],
+  [m("Ctrl",1.5,"ControlLeft"), m("Alt",1.25,"AltLeft"), {base:" ", doigt:0, w:9.5, code:"Space", espace:true},
+   m("Alt Gr",1.25,"AltRight"), m("Ctrl",1.5,"ControlRight")]
+];
+
+// caractère -> { def (touche physique), shift (bool) }
+const CARTE = {};
+DISPOSITION.flat().forEach(def => {
+  if (def.base === undefined) return;
+  CARTE[def.base] = { def, shift:false };
+  if (def.shift) CARTE[def.shift] = { def, shift:true };
+});
+// caractères obtenus par touche morte : ^ puis e = ê
+const COMPOSE = { "ê":"^e", "â":"^a", "î":"^i", "ô":"^o", "û":"^u", "ë":"¨e", "ï":"¨i", "ü":"¨u" };
+
+function etapes(ch){
+  if (ch === undefined) return [];
+  if (COMPOSE[ch]) return [...COMPOSE[ch]].map(c => CARTE[c]);
+  return CARTE[ch] ? [CARTE[ch]] : [];
+}
+const cotéMaj = def => def.doigt >= 1 && def.doigt <= 4 ? "shiftD" : "shiftG";
+
+function decrire(ch, etape){
+  const et = etapes(ch);
+  if (!et.length) return "";
+  const lib = ch === " " ? "Espace" : ch;
+  const cur = et[Math.min(etape, et.length - 1)];
+  let comment = "";
+  if (et.length > 1) comment = "touche morte <b>" + esc(et[0].shift ? "¨" : "^") + "</b> puis <b>" + esc(et[1].def.base) + "</b>";
+  else if (cur.shift) comment = "Maj " + (cotéMaj(cur.def) === "shiftD" ? "droite" : "gauche") + " + <b>" + esc(cur.def.base) + "</b>";
+  return '<i class="pastille" style="--c:var(--f' + ZONE[cur.def.doigt] + ')"></i>' +
+    '<b>' + esc(lib) + '</b>' + (comment ? ' <span>' + comment + '</span>' : '') +
+    ' <span>· ' + NOM_DOIGT[cur.def.doigt] + '</span>';
+}
+
+function creerClavier(){
+  const racine = h("div", "clavier");
+  racine.setAttribute("aria-hidden", "true");
+  const parCode = {}, parId = {}, parBase = {};
+  DISPOSITION.forEach(rangee => {
+    const r = h("div", "rangee");
+    rangee.forEach(def => {
+      const el = h("div", "k");
+      el.style.setProperty("--w", def.w || 1);
+      if (def.doigt !== undefined) el.dataset.z = ZONE[def.doigt];
+      if (def.vide) el.classList.add("vide");
+      else if (def.mod !== undefined){ el.classList.add("mod"); el.textContent = def.mod; }
+      else if (def.espace){ el.classList.add("espace"); }
+      else if (def.lettre){ el.innerHTML = '<span class="b">' + esc(def.shift) + '</span>'; }
+      else {
+        el.classList.add("double");
+        el.innerHTML = (def.shift ? '<span class="s">' + esc(def.shift) + '</span>' : '') +
+                       '<span class="b">' + esc(def.base) + '</span>';
       }
-      r.appendChild(k);
+      if (def.base === "f" || def.base === "j") el.classList.add("repere");
+      if (def.code) parCode[def.code] = el;
+      if (def.id) parId[def.id] = el;
+      if (def.base !== undefined) parBase[def.base] = el;
+      r.appendChild(el);
     });
-    cl.appendChild(r);
+    racine.appendChild(r);
   });
-  return cl;
+  let allumees = [];
+  return {
+    el: racine, parBase,
+    montrer(et){
+      for (const t of allumees) t.classList.remove("cible");
+      allumees = [];
+      if (!et) return;
+      const t = parBase[et.def.base];
+      if (t){ t.classList.add("cible"); allumees.push(t); }
+      if (et.shift){ const s = parId[cotéMaj(et.def)]; s.classList.add("cible"); allumees.push(s); }
+    },
+    presser(code, rate){
+      const t = parCode[code];
+      if (!t) return;
+      t.classList.add("presse");
+      t.classList.toggle("rate", !!rate);
+    },
+    relacher(code){
+      const t = parCode[code];
+      if (t) t.classList.remove("presse", "rate");
+    },
+    toutRelacher(){ racine.querySelectorAll(".presse").forEach(t => t.classList.remove("presse", "rate")); }
+  };
 }
-// un clavier par vue qui en a besoin
-const claviers = {};
-function poserClavier(idScene, cle){
-  const c = construireClavier();
-  claviers[cle] = c;
-  document.querySelector(idScene).appendChild(c);
-}
-
-function doigtDe(car){
-  if (car === " ") return 0;
-  const bas = car.toLowerCase();
-  return DOIGT_DE[bas] !== undefined ? DOIGT_DE[bas] : null;
-}
-function surlignerAttendu(cle, car){
-  const c = claviers[cle];
-  if (!c) return;
-  c.querySelectorAll(".attendu").forEach(k => k.classList.remove("attendu"));
-  if (!car) return;
-  const bas = car === " " ? " " : car.toLowerCase();
-  const k = c.querySelector('.k[data-car="' + (bas === '"' ? '\\"' : bas) + '"]');
-  if (k) k.classList.add("attendu");
-}
-function flashTouche(cle, car){
-  const c = claviers[cle];
-  if (!c) return;
-  const bas = car === " " ? " " : car.toLowerCase();
-  const k = c.querySelector('.k[data-car="' + (bas === '"' ? '\\"' : bas) + '"]');
-  if (!k) return;
-  k.classList.add("frappee");
-  setTimeout(() => k.classList.remove("frappee"), 90);
-}
-function legende(){
-  const l = document.createElement("div");
-  l.className = "legende";
-  [[1,"Auriculaires"],[2,"Annulaires"],[3,"Majeurs"],[4,"Index"],[0,"Pouces"]].forEach(([d,nom]) => {
-    const s = document.createElement("span");
-    s.innerHTML = '<i class="pastille" style="background:' + COULEUR_DOIGT[d] + '"></i>' + nom;
-    l.appendChild(s);
+function legendeDoigts(){
+  const l = h("div", "legende");
+  [[1,"Auriculaires"],[2,"Annulaires"],[3,"Majeurs"],[4,"Index"],[0,"Pouces"]].forEach(([z, nom]) => {
+    l.appendChild(h("span", "", '<i class="pastille" style="--c:var(--f' + z + ')"></i>' + nom));
   });
   return l;
 }
 
 /* =========================================================
-   3. LEÇONS
+   3. TEXTES
    ========================================================= */
-const LECONS = [
-  {t:"Position de repos",  c:["f","j"],                       o:{mpm:12,prec:96}},
-  {t:"Les majeurs",        c:["d","k"],                       o:{mpm:12,prec:96}},
-  {t:"Les annulaires",     c:["s","l"],                       o:{mpm:13,prec:96}},
-  {t:"Les auriculaires",   c:["q","m"],                       o:{mpm:13,prec:95}},
-  {t:"Index en extension", c:["g","h"],                       o:{mpm:14,prec:95}},
-  {t:"Rangée de repos",    c:["q","s","d","f","g","h","j","k","l","m"], o:{mpm:16,prec:95}},
-  {t:"Majeurs en haut",    c:["e","i"],                       o:{mpm:15,prec:95}},
-  {t:"Index en haut",      c:["r","u"],                       o:{mpm:15,prec:95}},
-  {t:"Index vers le centre",c:["t","y"],                      o:{mpm:15,prec:95}},
-  {t:"Annulaires en haut", c:["z","o"],                       o:{mpm:16,prec:95}},
-  {t:"Auriculaires en haut",c:["a","p"],                      o:{mpm:16,prec:95}},
-  {t:"Rangée haute",       c:["a","z","e","r","t","y","u","i","o","p"], o:{mpm:18,prec:95}},
-  {t:"Rangée basse",       c:["x","c","v","b","n"],           o:{mpm:17,prec:95}},
-  {t:"Bas et ponctuation", c:["w",",",";",":"],               o:{mpm:16,prec:94}},
-  {t:"Les trois rangées",  c:["a","z","e","r","t","y","u","i","o","p","q","s","d","f","g","h","j","k","l","m","w","x","c","v","b","n"], o:{mpm:20,prec:95}},
-  {t:"Les accents",        c:["é","è","à","ç","ù"],           o:{mpm:14,prec:94}},
-  {t:"Mots réels",         c:[], mots:true,                   o:{mpm:22,prec:96}}
-];
-
-const MOTS = ("le la les un une des et est en dans pour que qui sur avec pas plus par ne se ce il elle nous vous ils sont "+
-"etre avoir faire dire aller voir savoir pouvoir vouloir venir devoir prendre trouver donner parler mettre passer "+
-"temps jour homme femme enfant monde vie main chose maison pays eau feu air terre ciel mer route ville rue porte "+
-"table livre mot texte page clavier doigt frappe vitesse ligne serie exercice travail projet plan note calcul "+
-"soleil toiture panneau charpente bureau dessin mesure angle pente surface module rendement reseau "+
-"vert bleu rouge blanc noir grand petit long court haut bas neuf vieux clair sombre simple juste "+
-"matin soir nuit hiver ete printemps automne semaine mois annee heure minute seconde "+
-"lire ecrire compter penser chercher ouvrir fermer monter descendre tenir garder suivre").split(" ");
-
-const MOTS_JEU = MOTS.filter(m => m.length >= 3 && m.length <= 8);
-
-let leconActive = 0;
+const MOTS = ("le la les un une des du de et est en dans pour que qui sur avec pas plus par ne se ce il elle "+
+"nous vous ils sont mais ou donc car comme tout tous bien très aussi encore jamais toujours déjà après avant "+
+"pendant depuis sans sous entre vers chez ça voilà là où ici "+
+"être avoir faire dire aller voir savoir pouvoir vouloir venir devoir prendre trouver donner parler mettre "+
+"passer penser regarder aimer croire porter montrer comprendre attendre écrire lire compter chercher ouvrir "+
+"fermer monter descendre tenir garder suivre apprendre répondre choisir finir commencer travailler marcher jouer "+
+"temps jour année homme femme enfant monde vie main chose maison pays eau feu air terre ciel mer route ville "+
+"rue porte table livre mot texte page clavier doigt frappe vitesse ligne série exercice travail projet plan "+
+"note calcul idée question réponse histoire moment partie place fois raison nuit matin soir semaine mois heure "+
+"minute seconde hiver été printemps automne soleil toiture panneau charpente bureau dessin mesure angle pente "+
+"surface module rendement réseau école élève café pomme pain fromage jardin fleur arbre forêt rivière montagne "+
+"plage voiture train vélo avion musique film photo écran souris lumière leçon façon garçon français reçu "+
+"vert bleu rouge blanc noir gris jaune grand petit long court haut bas neuf vieux clair sombre simple juste "+
+"facile rapide lent doux fort beau joli nouveau premier dernier tête fête même fenêtre château côté hôtel "+
+"bientôt plutôt sûr goût âge île").split(" ");
+const MOTS_CIRC = "être tête fête même fenêtre forêt prêt arrêt crêpe château gâteau âge pâte théâtre île dîner côté hôtel hôpital bientôt plutôt tôt rôle sûr goût août".split(" ");
+const MOTS_JEU = MOTS.filter(w => w.length >= 3 && w.length <= 9);
 
 function poidsChar(c){
-  const s = data.touches[c];
+  const s = data.touches[c.toLowerCase()];
   if (!s || s.essais < 6) return 1;
   return 1 + 3 * (s.erreurs / s.essais);
 }
-function tirer(pool){
-  const poids = pool.map(poidsChar);
-  const total = poids.reduce((a,b) => a+b, 0);
+function tirer(pool, poids){
+  const total = poids.reduce((a, b) => a + b, 0);
   let r = Math.random() * total;
-  for (let i = 0; i < pool.length; i++){
-    r -= poids[i];
-    if (r <= 0) return pool[i];
-  }
+  for (let i = 0; i < pool.length; i++){ r -= poids[i]; if (r <= 0) return pool[i]; }
   return pool[pool.length - 1];
 }
+// tirage de mots pondéré : les mots qui contiennent tes touches faibles reviennent plus souvent
+function tirerMots(n, liste = MOTS){
+  const poids = liste.map(w => { let p = 1; for (const c of w) p += poidsChar(c) - 1; return p; });
+  const out = [];
+  while (out.length < n){
+    const w = tirer(liste, poids);
+    if (w !== out[out.length - 1]) out.push(w);
+  }
+  return out;
+}
+const majuscule = w => /^[a-z]/.test(w) ? w[0].toUpperCase() + w.slice(1) : w;
+function unePhrase(){
+  const mots = tirerMots(4 + alea(7));
+  let s = majuscule(mots[0]);
+  for (let i = 1; i < mots.length; i++){
+    if (i > 1 && i < mots.length - 1 && Math.random() < .14) s += ",";
+    s += " " + mots[i];
+  }
+  return s + choisir([".", ".", ".", ".", " ?", " !"]);
+}
+function phrases(minimum){
+  const out = [];
+  let n = 0;
+  while (n < minimum){ const p = unePhrase(); out.push(p); n += p.length + 1; }
+  return out.join(" ");
+}
+
+/* =========================================================
+   4. LEÇONS
+   ========================================================= */
+const LECONS = [
+  {t:"Position de repos",     c:["f","j"],         o:{mpm:12,prec:96}},
+  {t:"Les majeurs",           c:["d","k"],         o:{mpm:12,prec:96}},
+  {t:"Les annulaires",        c:["s","l"],         o:{mpm:13,prec:96}},
+  {t:"Les auriculaires",      c:["q","m"],         o:{mpm:13,prec:95}},
+  {t:"Index en extension",    c:["g","h"],         o:{mpm:14,prec:95}},
+  {t:"Rangée de repos",       c:[..."qsdfghjklm"], o:{mpm:16,prec:95}},
+  {t:"Majeurs en haut",       c:["e","i"],         o:{mpm:15,prec:95}},
+  {t:"Index en haut",         c:["r","u"],         o:{mpm:15,prec:95}},
+  {t:"Index vers le centre",  c:["t","y"],         o:{mpm:15,prec:95}},
+  {t:"Annulaires en haut",    c:["z","o"],         o:{mpm:16,prec:95}},
+  {t:"Auriculaires en haut",  c:["a","p"],         o:{mpm:16,prec:95}},
+  {t:"Rangée haute",          c:[..."azertyuiop"], o:{mpm:18,prec:95}},
+  {t:"Rangée basse",          c:[..."xcvbn"],      o:{mpm:17,prec:95}},
+  {t:"Bas et ponctuation",    c:["w",",",";",":"], o:{mpm:16,prec:94}},
+  {t:"Les trois rangées",     c:[..."azertyuiopqsdfghjklmwxcvbn"], o:{mpm:20,prec:95}},
+  {t:"Les accents",           c:["é","è","à","ç","ù"], o:{mpm:14,prec:94}},
+  {t:"Mots réels",            c:[], type:"mots",   o:{mpm:22,prec:96}},
+  {t:"Majuscules",            c:[], type:"maj",    o:{mpm:18,prec:94}, aide:"Maj de la main opposée"},
+  {t:"Chiffres",              c:[..."1234567890"], type:"chiffres", o:{mpm:12,prec:92}, aide:"avec Maj"},
+  {t:"Ponctuation",           c:[".",",","?","!"], type:"phrases",  o:{mpm:18,prec:94}},
+  {t:"Accents circonflexes",  c:["ê","â","î","ô","û"], type:"circ", o:{mpm:16,prec:94}, aide:"touche morte ^ puis la voyelle"}
+];
+
 function poolAnterieur(index){
   const s = new Set();
-  for (let i = 0; i < index; i++) LECONS[i].c.forEach(c => s.add(c));
+  for (let i = 0; i < index; i++) if (!LECONS[i].type) LECONS[i].c.forEach(c => s.add(c));
   return [...s];
 }
 function genererSerie(index){
   const lec = LECONS[index];
-  if (lec.mots){
-    const out = [];
-    for (let i = 0; i < 30; i++) out.push(MOTS[Math.floor(Math.random()*MOTS.length)]);
-    return out.join(" ");
+  switch (lec.type){
+    case "mots": return tirerMots(26).join(" ");
+    case "maj": return tirerMots(24).map(w => Math.random() < .55 ? majuscule(w) : w).join(" ");
+    case "phrases": return phrases(150);
+    case "circ": return tirerMots(24, MOTS_CIRC).map(w => Math.random() < .35 ? choisir(MOTS) : w).join(" ");
+    case "chiffres": {
+      const g = [];
+      for (let i = 0; i < 24; i++){ let s = ""; for (let j = 2 + alea(3); j > 0; j--) s += choisir(lec.c); g.push(s); }
+      return g.join(" ");
+    }
   }
-  const courant = lec.c;
-  const avant = poolAnterieur(index);
+  const courant = lec.c, avant = poolAnterieur(index);
+  const pc = courant.map(poidsChar), pa = avant.map(poidsChar);
   const groupes = [];
   for (let g = 0; g < 22; g++){
-    const n = 3 + Math.floor(Math.random() * 3);
     let mot = "";
-    for (let i = 0; i < n; i++){
-      const pool = (avant.length && Math.random() < 0.3) ? avant : courant;
-      mot += tirer(pool);
+    for (let i = 3 + alea(3); i > 0; i--){
+      mot += (avant.length && Math.random() < .3) ? tirer(avant, pa) : tirer(courant, pc);
     }
     groupes.push(mot);
   }
@@ -530,439 +840,904 @@ function genererSerie(index){
 }
 
 /* =========================================================
-   4. MOTEUR DE FRAPPE (partagé leçons / vitesse)
+   5. MOTEUR DE FRAPPE (partagé leçons / vitesse)
+   - mise à jour O(1) par frappe (deux spans + un caret)
+   - fenêtre de 3 lignes qui défile
+   - le temps d'inactivité > 2,5 s n'est pas compté dans les MPM
    ========================================================= */
-function creerMoteur(opts){
-  const el = document.querySelector(opts.ligne);
-  const indice = document.querySelector(opts.indice);
-  let cible = "", pos = 0, spans = [];
-  let debut = null, frappes = 0, erreurs = 0, actif = false;
-  let minuteur = null;
+const PAUSE_MAX = 2500;
 
-  function rendre(){
-    el.innerHTML = "";
-    spans = [];
-    for (const ch of cible){
-      const s = document.createElement("i");
-      s.textContent = ch === " " ? "\u00A0" : ch;
-      if (ch === " ") s.classList.add("esp");
-      el.appendChild(s);
+function creerMoteur(o){
+  const fenetre = o.fenetre, indice = o.indice;
+  const texte = h("div", "texte");
+  const caret = h("div", "caret attente");
+  fenetre.appendChild(texte);
+
+  let cible = [], spans = [], pos = 0;
+  let debut = null, dernier = 0, actifMs = 0, frappes = 0, erreurs = 0;
+  let actif = false, erreurIci = false, mort = false, suspendu = false;
+  let fautes = {}, lh = 0, ligne = -1, minuteur = null, dernierIndice = "";
+
+  function construire(depuis){
+    const frag = document.createDocumentFragment();
+    for (let i = depuis; i < cible.length; i++){
+      const s = document.createElement("span");
+      s.textContent = cible[i];
+      frag.appendChild(s);
       spans.push(s);
     }
-    majCurseur();
+    texte.insertBefore(frag, caret);
   }
-  function majCurseur(){
-    spans.forEach((s,i) => {
-      s.classList.remove("actuel");
-      if (i === pos) s.classList.add("actuel");
-    });
-    const car = cible[pos];
-    surlignerAttendu(opts.clavier, car);
-    if (car){
-      const d = doigtDe(car);
-      indice.innerHTML = d === null ? "" :
-        '<i class="pastille" style="background:' + COULEUR_DOIGT[d] + '"></i>' +
-        (car === " " ? "Espace" : "« " + car + " »") + " — " + NOM_DOIGT[d];
-    } else {
-      indice.textContent = "";
+  function placer(){
+    const fin = pos >= spans.length;
+    const s = spans[fin ? spans.length - 1 : pos];
+    if (!s) return;
+    if (!lh) lh = parseFloat(getComputedStyle(texte).lineHeight) || 0;
+    if (!lh) return;                      // vue masquée : on recalculera à l'affichage
+    const x = s.offsetLeft + (fin ? s.offsetWidth : 0), y = s.offsetTop;
+    caret.style.transform = "translate(" + x + "px," + y + "px)";
+    const l = Math.round(y / lh);
+    if (l !== ligne){
+      ligne = l;
+      texte.style.transform = "translateY(" + (-Math.max(0, l - 1) * lh) + "px)";
     }
   }
-  function mpm(){
-    if (!debut) return 0;
-    const min = (Date.now() - debut) / 60000;
-    if (min <= 0) return 0;
-    return Math.max(0, Math.round((pos / 5) / min));
-  }
-  function precision(){
-    if (!frappes) return 100;
-    return Math.round(((frappes - erreurs) / frappes) * 100);
-  }
-  function majMesures(){
-    if (opts.onMesures) opts.onMesures({mpm:mpm(), prec:precision(), pos, total:cible.length});
-  }
+  new ResizeObserver(() => { lh = 0; ligne = -1; placer(); }).observe(fenetre);
 
-  function noterTouche(car, faux){
-    const c = car.toLowerCase();
-    if (!data.touches[c]) data.touches[c] = {essais:0, erreurs:0};
-    data.touches[c].essais++;
-    if (faux) data.touches[c].erreurs++;
+  function montrer(){
+    const ch = cible[pos];
+    const et = actif ? etapes(ch) : [];
+    o.clavier.montrer(et[mort ? 1 : 0] || null);
+    const cle = actif ? ch + (mort ? "1" : "0") : "";
+    if (cle !== dernierIndice){
+      dernierIndice = cle;
+      indice.innerHTML = actif ? decrire(ch, mort ? 1 : 0) : "";
+    }
+  }
+  function tempsActif(){
+    if (debut === null) return 0;
+    return actifMs + (actif && !suspendu ? Math.min(performance.now() - dernier, PAUSE_MAX) : 0);
+  }
+  function mpm(fin){
+    const t = fin ? actifMs : tempsActif();
+    if (!fin && (t < 1500 || pos < 3)) return null;
+    return Math.max(0, Math.round((pos / 5) / (Math.max(t, 1000) / 60000)));
+  }
+  function precision(){ return frappes ? Math.round((frappes - erreurs) / frappes * 100) : null; }
+  function mesures(){ if (o.onMesures) o.onMesures({ mpm:mpm(false), prec:precision(), pos, total:cible.length }); }
+
+  function noter(c, faute, ms){
+    const cle = c.toLowerCase();
+    const s = data.touches[cle] || (data.touches[cle] = { essais:0, erreurs:0 });
+    modifie = true;
+    s.essais++;
+    if (faute) s.erreurs++;
+    if (ms !== null && ms > 30){ s.ms = (s.ms || 0) + Math.round(ms); s.nt = (s.nt || 0) + 1; }
+  }
+  function faute(att){
+    frappes++; erreurs++;
+    if (!erreurIci){ erreurIci = true; fautes[att] = (fautes[att] || 0) + 1; }
+    mort = false;
+    spans[pos].classList.add("faux");
+    if (caret.animate && !MOUVEMENT_REDUIT){
+      caret.animate([{translate:"0 0"},{translate:"-3px 0"},{translate:"3px 0"},{translate:"0 0"}], {duration:130});
+    }
+    montrer();
+    return "faux";
   }
 
   function saisir(e){
-    if (!actif) return;
-    if (e.key === "Backspace"){ e.preventDefault(); return; }
-    if (e.key.length !== 1 && e.key !== "Spacebar") return;
+    if (!actif) return null;
+    const touche = e.key;
+    if (touche === "Backspace"){ e.preventDefault(); return "neutre"; }
+    const morte = touche === "Dead";
+    if (!morte && touche.length !== 1) return null;
     e.preventDefault();
-    const attendu = cible[pos];
-    if (attendu === undefined) return;
+    if (e.repeat) return "neutre";      // touche maintenue : on ignore la répétition
+
+    const t = performance.now();
+    let gap = null;
     if (debut === null){
-      debut = Date.now();
-      if (opts.onDemarrage) opts.onDemarrage();
-      minuteur = setInterval(majMesures, 200);
+      debut = t;
+      caret.classList.remove("attente");
+      minuteur = setInterval(mesures, 250);
+      if (o.onDemarrage) o.onDemarrage();
+    } else if (!suspendu){
+      gap = t - dernier;
+      actifMs += Math.min(gap, PAUSE_MAX);
     }
+    if (suspendu){ suspendu = false; if (o.onReprise) o.onReprise(); }
+    dernier = t;
+
+    const att = cible[pos];
+    if (morte){
+      if (COMPOSE[att] && !mort){ mort = true; montrer(); return "ok"; }
+      return faute(att);
+    }
+    if (touche !== att) return faute(att);
+
     frappes++;
-    flashTouche(opts.clavier, e.key);
-    if (e.key === attendu){
-      noterTouche(attendu, false);
-      spans[pos].classList.remove("faux");
-      spans[pos].classList.add("ok");
-      pos++;
-      majCurseur();
-      majMesures();
-      if (pos >= cible.length) terminer();
-    } else {
-      erreurs++;
-      noterTouche(attendu, true);
-      spans[pos].classList.add("faux");
-      majMesures();
-    }
+    noter(att, erreurIci, !erreurIci && !COMPOSE[att] && gap !== null && gap < PAUSE_MAX ? gap : null);
+    const s = spans[pos];
+    s.classList.remove("ici", "faux");
+    s.classList.add(erreurIci ? "corr" : "ok");
+    pos++;
+    erreurIci = false; mort = false;
+    if (o.onAvance) o.onAvance(pos, cible.length);
+    if (pos >= cible.length){ placer(); terminer(); return "ok"; }
+    spans[pos].classList.add("ici");
+    montrer();
+    placer();
+    return "ok";
   }
 
   function terminer(){
     if (!actif) return;
     actif = false;
     clearInterval(minuteur);
-    surlignerAttendu(opts.clavier, null);
-    indice.textContent = "";
+    montrer();
+    caret.classList.add("attente");
     sauver();
-    if (opts.onFin) opts.onFin({mpm:mpm(), prec:precision(), chars:pos});
+    if (o.onFin) o.onFin({ mpm:mpm(true) ?? 0, prec:precision() ?? 100, chars:pos, erreurs, frappes, actifMs, fautes });
   }
 
   return {
-    demarrer(texte){
-      cible = texte; pos = 0; debut = null; frappes = 0; erreurs = 0; actif = true;
+    demarrer(str){
       clearInterval(minuteur);
-      rendre();
-      majMesures();
+      cible = Array.from(str); spans = []; pos = 0;
+      debut = null; dernier = 0; actifMs = 0; frappes = 0; erreurs = 0;
+      actif = true; erreurIci = false; mort = false; suspendu = false; fautes = {};
+      ligne = -1; dernierIndice = "";
+      texte.textContent = "";
+      texte.appendChild(caret);
+      caret.classList.add("attente");
+      construire(0);
+      spans[0].classList.add("ici");
+      montrer();
+      placer();
+      mesures();
+      if (o.onAvance) o.onAvance(0, cible.length);
     },
-    stopper: terminer,
-    estActif: () => actif,
+    ajouter(str){
+      const depuis = cible.length;
+      cible.push(...Array.from(str));
+      construire(depuis);
+    },
     saisir,
-    mpm, precision
+    stopper: terminer,
+    suspendre(){ if (actif && debut !== null) suspendu = true; },
+    actif: () => actif,
+    commence: () => debut !== null,
+    reste: () => cible.length - pos,
+    position: () => pos,
+    precision
   };
 }
 
 /* =========================================================
-   5. VUE LEÇONS
+   6. VUE LEÇONS
    ========================================================= */
-poserClavier("#vue-lecons .scene", "lecons");
-document.querySelector("#vue-lecons .scene").appendChild(legende());
+const claviers = {};
+claviers.lecons = creerClavier();
+$("#l-clavier").append(claviers.lecons.el, legendeDoigts());
+$("#l-total").textContent = LECONS.length;
+
+let leconActive = 0;
+const resL = $("#l-resultat");
+
+function afficherMesure(id, val, objectif){
+  const el = $(id);
+  el.firstElementChild.textContent = val === null ? "—" : val;
+  el.classList.toggle("atteint", val !== null && objectif !== undefined && val >= objectif);
+}
 
 const moteurLecon = creerMoteur({
-  ligne:"#ligne", indice:"#l-indice", clavier:"lecons",
-  onMesures(m){
-    document.getElementById("l-mpm").textContent = m.mpm;
-    document.getElementById("l-prec").textContent = m.prec;
-    document.getElementById("l-avance").textContent = Math.round((m.pos / m.total) * 100);
+  fenetre: $("#l-fenetre"), indice: $("#l-indice"), clavier: claviers.lecons,
+  onMesures(r){
+    const o = LECONS[leconActive].o;
+    afficherMesure("#l-m-mpm", r.mpm, o.mpm);
+    afficherMesure("#l-m-prec", r.prec, o.prec);
   },
+  onAvance(p, t){ $("#l-barre").style.transform = "scaleX(" + (p / t) + ")"; },
   onFin(r){
-    const lec = LECONS[leconActive];
+    const i = leconActive, lec = LECONS[i];
     const reussi = r.mpm >= lec.o.mpm && r.prec >= lec.o.prec;
-    if (reussi) data.lecons[leconActive] = true;
-    data.sessions.push({d:Date.now(), mode:"Leçon " + (leconActive+1), mpm:r.mpm, prec:r.prec});
-    if (data.sessions.length > 200) data.sessions = data.sessions.slice(-200);
-    sauver();
-    dessinerLecons();
-    const b = document.getElementById("bilan-lecon");
-    b.innerHTML =
-      '<div class="bilan"><h3>' + (reussi ? "Leçon validée" : "Série terminée") + '</h3>' +
-      '<p>' + r.mpm + ' mots/min, ' + r.prec + ' % de précision. ' +
-      (reussi
-        ? 'Objectif atteint, tu peux passer à la leçon suivante.'
-        : 'Objectif : ' + lec.o.mpm + ' mots/min et ' + lec.o.prec + ' % de précision. Relance une série.') +
-      '</p></div>';
-    majStats();
+    const premiere = reussi && !data.lecons[i];
+    if (reussi) data.lecons[i] = true;
+    ajouterSession({ d:Date.now(), mode:"Leçon " + (i + 1), mpm:r.mpm, prec:r.prec, dur:Math.round(r.actifMs / 1000) });
+    dessinerRail();
+    resultatLecon(r, reussi, premiere);
   }
 });
 
-function dessinerLecons(){
-  const box = document.getElementById("liste-lecons");
-  box.innerHTML = "";
-  LECONS.forEach((lec, i) => {
-    const b = document.createElement("button");
-    b.className = "lecon";
-    b.setAttribute("aria-current", i === leconActive ? "true" : "false");
-    const apercu = lec.mots ? "mots complets" : lec.c.slice(0,10).join(" ");
-    b.innerHTML = '<strong>' + (i+1) + '. ' + lec.t + '</strong><em>' + apercu + '</em>' +
-                  (data.lecons[i] ? '<span class="validee">✓ validée</span>' : '');
-    b.onclick = () => choisirLecon(i);
-    box.appendChild(b);
-  });
+function resultatLecon(r, reussi, premiere){
+  const i = leconActive, lec = LECONS[i];
+  const derniere = i >= LECONS.length - 1;
+  const manque = [];
+  if (r.mpm < lec.o.mpm) manque.push("il manque " + (lec.o.mpm - r.mpm) + " mot" + (lec.o.mpm - r.mpm > 1 ? "s" : "") + "/min");
+  if (r.prec < lec.o.prec) manque.push("vise " + lec.o.prec + " % de précision");
+  const pires = Object.entries(r.fautes).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([c]) => c);
+  const note = reussi
+    ? (pires.length ? "À surveiller : " + pires.map(c => "<kbd>" + esc(c === " " ? "␣" : c) + "</kbd>").join(" ") : "Aucune faute, impeccable.")
+    : "Presque : " + manque.join(" et ") + "." + (pires.length ? " Touches fautives : " + pires.map(c => "<kbd>" + esc(c === " " ? "␣" : c) + "</kbd>").join(" ") : "");
+  const suivre = reussi && !derniere;
+  resL.innerHTML =
+    '<div class="carte-res">' +
+      '<p class="surtitre">Leçon ' + (i + 1) + ' · ' + esc(lec.t) + '</p>' +
+      '<h3>' + (reussi ? "Leçon validée" : "Encore une série ?") + (premiere ? '<span class="badge">Nouveau</span>' : '') + '</h3>' +
+      '<div class="res-chiffres">' +
+        '<div><b class="' + (r.mpm >= lec.o.mpm ? "ok" : "ko") + '">' + r.mpm + '</b><span>mots/min</span><small>objectif ' + lec.o.mpm + '</small></div>' +
+        '<div><b class="' + (r.prec >= lec.o.prec ? "ok" : "ko") + '">' + r.prec + ' %</b><span>précision</span><small>objectif ' + lec.o.prec + ' %</small></div>' +
+        '<div><b>' + r.erreurs + '</b><span>erreur' + (r.erreurs > 1 ? "s" : "") + '</span><small>' + r.chars + ' caractères</small></div>' +
+      '</div>' +
+      '<p class="res-note">' + note + '</p>' +
+      '<div class="res-actions">' +
+        (suivre
+          ? '<button class="btn creux" data-act="rejouer">Rejouer <kbd>Échap</kbd></button><button class="btn" data-act="suivante">Leçon suivante <kbd>Entrée</kbd></button>'
+          : (derniere ? '' : '<button class="btn creux" data-act="suivante">Passer à la suivante</button>') +
+            '<button class="btn" data-act="rejouer">' + (reussi ? "Rejouer" : "Réessayer") + ' <kbd>Entrée</kbd></button>') +
+      '</div>' +
+    '</div>';
+  resL.dataset.entree = suivre ? "suivante" : "rejouer";
+  resL.hidden = false;
+  const principal = resL.querySelector(".btn:not(.creux)");
+  if (principal) principal.focus({ preventScroll:true });
 }
+resL.addEventListener("click", e => {
+  const b = e.target.closest("[data-act]");
+  if (!b) return;
+  if (b.dataset.act === "suivante") choisirLecon(leconActive + 1);
+  else choisirLecon(leconActive);
+});
+
+function dessinerRail(){
+  const rail = $("#l-rail");
+  rail.innerHTML = "";
+  LECONS.forEach((lec, i) => {
+    if (i === 16) rail.appendChild(h("li", "sep"));
+    const li = h("li");
+    const b = h("button", data.lecons[i] ? "faite" : "", String(i + 1));
+    b.title = (i + 1) + ". " + lec.t + (data.lecons[i] ? " — validée" : "");
+    b.setAttribute("aria-label", "Leçon " + (i + 1) + " : " + lec.t + (data.lecons[i] ? ", validée" : ""));
+    b.setAttribute("aria-current", i === leconActive ? "true" : "false");
+    b.onclick = () => { choisirLecon(i); b.blur(); };
+    li.appendChild(b);
+    rail.appendChild(li);
+  });
+  $("#l-faites").textContent = Object.keys(data.lecons).filter(i => LECONS[i]).length;
+  const cur = rail.querySelector('[aria-current="true"]');
+  if (cur) cur.scrollIntoView({ block:"nearest", inline:"nearest" });
+}
+
 function choisirLecon(i){
+  i = Math.max(0, Math.min(LECONS.length - 1, i));
   leconActive = i;
   const lec = LECONS[i];
-  document.getElementById("l-cible").textContent = lec.o.mpm + " / " + lec.o.prec + "%";
-  document.getElementById("bilan-lecon").innerHTML = "";
-  dessinerLecons();
+  $("#l-num").textContent = i + 1;
+  $("#l-titre").textContent = lec.t;
+  $("#l-o-mpm").textContent = lec.o.mpm;
+  $("#l-o-prec").textContent = lec.o.prec + " %";
+  $("#l-precedente").disabled = i === 0;
+  $("#l-suivante").disabled = i === LECONS.length - 1;
+  const puces = lec.c.length
+    ? lec.c.map(c => "<kbd>" + esc(c) + "</kbd>").join("") + (lec.aide ? '<span class="txt">' + esc(lec.aide) + '</span>' : '')
+    : '<span class="txt">' + ({ mots:"Mots courants du français", maj:"Mots avec majuscules — Maj de la main opposée" })[lec.type] + '</span>';
+  $("#l-puces").innerHTML = puces;
+  resL.hidden = true;
+  if (document.activeElement && document.activeElement.tagName === "BUTTON") document.activeElement.blur();
+  dessinerRail();
   moteurLecon.demarrer(genererSerie(i));
 }
-document.getElementById("l-rejouer").onclick = () => choisirLecon(leconActive);
-document.getElementById("l-suivante").onclick = () => choisirLecon(Math.min(leconActive+1, LECONS.length-1));
+$("#l-precedente").onclick = () => choisirLecon(leconActive - 1);
+$("#l-suivante").onclick = () => choisirLecon(leconActive + 1);
+
+function toucheLecons(e){
+  if (!resL.hidden){
+    if (e.key === "Enter"){ e.preventDefault(); choisirLecon(leconActive + (resL.dataset.entree === "suivante" ? 1 : 0)); }
+    else if (e.key === "Escape"){ e.preventDefault(); choisirLecon(leconActive); }
+    return null;
+  }
+  if (e.key === "Escape"){ e.preventDefault(); choisirLecon(leconActive); return null; }
+  if (!moteurLecon.commence() && (e.key === "ArrowRight" || e.key === "ArrowLeft")){
+    e.preventDefault();
+    choisirLecon(leconActive + (e.key === "ArrowRight" ? 1 : -1));
+    return null;
+  }
+  return moteurLecon.saisir(e);
+}
 
 /* =========================================================
-   6. VUE VITESSE
+   7. VUE VITESSE
    ========================================================= */
-poserClavier("#vue-vitesse .scene", "vitesse");
+claviers.vitesse = creerClavier();
+$("#v-clavier").append(claviers.vitesse.el);
+const resV = $("#v-resultat");
+const chrono = { restant:60000, dernier:0, timer:null, pause:false };
 
-let chronoV = null, finV = 0;
+function recordVitesse(){
+  const v = data.sessions.filter(s => s.mode === "Vitesse" && typeof s.mpm === "number");
+  return v.length ? Math.max(...v.map(s => s.mpm)) : null;
+}
+function texteVitesse(n){ return prefs.type === "phrases" ? phrases(n * 6) : tirerMots(n).join(" "); }
+
+function afficherChrono(){
+  const el = $("#v-m-chrono");
+  el.firstElementChild.textContent = mmss(chrono.restant);
+  el.lastElementChild.textContent = chrono.pause && moteurVitesse.commence() ? "en pause" : "restant";
+  el.classList.toggle("pause", chrono.pause && moteurVitesse.commence());
+}
+function tic(){
+  if (chrono.pause) return;
+  const t = performance.now();
+  chrono.restant -= t - chrono.dernier;
+  chrono.dernier = t;
+  afficherChrono();
+  if (chrono.restant <= 0) moteurVitesse.stopper();
+}
+function pauseVitesse(){
+  if (!moteurVitesse.actif() || !moteurVitesse.commence()) return;
+  chrono.pause = true;
+  moteurVitesse.suspendre();
+  afficherChrono();
+}
+
 const moteurVitesse = creerMoteur({
-  ligne:"#v-ligne", indice:"#v-indice", clavier:"vitesse",
-  onMesures(m){
-    document.getElementById("v-mpm").textContent = m.mpm;
-    document.getElementById("v-prec").textContent = m.prec;
+  fenetre: $("#v-fenetre"), indice: $("#v-indice"), clavier: claviers.vitesse,
+  onMesures(r){
+    afficherMesure("#v-m-mpm", r.mpm);
+    afficherMesure("#v-m-prec", r.prec);
+    if (moteurVitesse.reste() < 120) moteurVitesse.ajouter(" " + texteVitesse(40));
   },
+  onAvance(){ $("#v-barre").style.transform = "scaleX(" + (1 - Math.max(0, chrono.restant) / (prefs.duree * 1000)) + ")"; },
   onDemarrage(){
-    const duree = parseInt(document.getElementById("v-duree").value, 10);
-    finV = Date.now() + duree * 1000;
-    chronoV = setInterval(() => {
-      const reste = Math.max(0, finV - Date.now());
-      const s = Math.ceil(reste / 1000);
-      document.getElementById("v-chrono").textContent =
-        Math.floor(s/60) + ":" + String(s % 60).padStart(2, "0");
-      if (reste <= 0) moteurVitesse.stopper();
-    }, 200);
+    chrono.dernier = performance.now();
+    chrono.pause = false;
+    chrono.timer = setInterval(tic, 100);
   },
+  onReprise(){ chrono.pause = false; chrono.dernier = performance.now(); afficherChrono(); },
   onFin(r){
-    clearInterval(chronoV);
-    data.sessions.push({d:Date.now(), mode:"Vitesse", mpm:r.mpm, prec:r.prec});
-    if (data.sessions.length > 200) data.sessions = data.sessions.slice(-200);
-    sauver();
-    document.getElementById("bilan-vitesse").innerHTML =
-      '<div class="bilan"><h3>Test terminé</h3><p>' + r.mpm + ' mots/min à ' + r.prec +
-      ' % de précision, ' + r.chars + ' caractères.</p></div>';
-    majStats();
+    clearInterval(chrono.timer);
+    const ecoule = Math.max(1000, prefs.duree * 1000 - Math.max(0, chrono.restant));
+    const mpmReel = Math.round((r.chars / 5) / (ecoule / 60000));
+    const ancien = recordVitesse();
+    ajouterSession({ d:Date.now(), mode:"Vitesse", mpm:mpmReel, prec:r.prec, dur:Math.round(ecoule / 1000) });
+    afficherRecordVitesse();
+    $("#v-barre").style.transform = "scaleX(1)";
+    const record = ancien === null || mpmReel > ancien;
+    resV.innerHTML =
+      '<div class="carte-res">' +
+        '<p class="surtitre">Test de ' + mmss(prefs.duree * 1000) + ' · ' + (prefs.type === "phrases" ? "phrases" : "mots") + '</p>' +
+        '<h3>' + mpmReel + ' mots/min' + (record && ancien !== null ? '<span class="badge">Record</span>' : '') + '</h3>' +
+        '<div class="res-chiffres">' +
+          '<div><b>' + r.prec + ' %</b><span>précision</span></div>' +
+          '<div><b>' + r.chars + '</b><span>caractères</span></div>' +
+          '<div><b>' + r.erreurs + '</b><span>erreur' + (r.erreurs > 1 ? "s" : "") + '</span></div>' +
+        '</div>' +
+        '<p class="res-note">' + (ancien === null ? "Premier test enregistré." :
+          record ? "Ancien record : " + ancien + " mots/min." : "Ton record : " + ancien + " mots/min.") + '</p>' +
+        '<div class="res-actions"><button class="btn" data-act="relancer">Nouveau test <kbd>Entrée</kbd></button></div>' +
+      '</div>';
+    resV.hidden = false;
+    resV.querySelector(".btn").focus({ preventScroll:true });
   }
 });
-function lancerVitesse(){
-  const duree = parseInt(document.getElementById("v-duree").value, 10);
-  document.getElementById("v-chrono").textContent =
-    Math.floor(duree/60) + ":" + String(duree % 60).padStart(2, "0");
-  document.getElementById("bilan-vitesse").innerHTML = "";
-  const n = Math.max(60, Math.round(duree * 1.6));
-  const t = [];
-  for (let i = 0; i < n; i++) t.push(MOTS[Math.floor(Math.random()*MOTS.length)]);
-  moteurVitesse.demarrer(t.join(" "));
+resV.addEventListener("click", e => { if (e.target.closest("[data-act]")) lancerVitesse(); });
+
+function afficherRecordVitesse(){
+  const r = recordVitesse();
+  $("#v-m-record").firstElementChild.textContent = r === null ? "—" : r;
 }
-document.getElementById("v-lancer").onclick = lancerVitesse;
+function lancerVitesse(){
+  clearInterval(chrono.timer);
+  chrono.restant = prefs.duree * 1000;
+  chrono.pause = false;
+  resV.hidden = true;
+  if (document.activeElement && document.activeElement.tagName === "BUTTON") document.activeElement.blur();
+  afficherChrono();
+  afficherRecordVitesse();
+  moteurVitesse.demarrer(texteVitesse(Math.max(60, Math.round(prefs.duree * 1.2))));
+}
+function segment(sel, valeur, surChoix){
+  const box = $(sel);
+  const maj = v => $$("button", box).forEach(b => b.setAttribute("aria-checked", String(b.dataset.val === String(v))));
+  maj(valeur);
+  box.addEventListener("click", e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    maj(b.dataset.val);
+    b.blur();
+    surChoix(b.dataset.val);
+  });
+}
+segment("#v-durees", prefs.duree, v => { prefs.duree = +v; ecrirePrefs(); lancerVitesse(); });
+segment("#v-types", prefs.type, v => { prefs.type = v; ecrirePrefs(); lancerVitesse(); });
+$("#v-nouveau").onclick = lancerVitesse;
+
+function toucheVitesse(e){
+  if (!resV.hidden){
+    if (e.key === "Enter" || e.key === "Escape"){ e.preventDefault(); lancerVitesse(); }
+    return null;
+  }
+  if (e.key === "Escape"){ e.preventDefault(); lancerVitesse(); return null; }
+  return moteurVitesse.saisir(e);
+}
 
 /* =========================================================
-   7. VUE JEU — mots qui tombent
+   8. VUE JEU — mots qui tombent
+   animation par transform (GPU), pause automatique hors de l'onglet
    ========================================================= */
-const arene = document.getElementById("arene");
-const affSaisie = document.getElementById("saisie");
+const arene = $("#arene"), voile = $("#j-voile"), affSaisie = $("#j-saisie");
 let jeu = null;
+let areneW = 0, areneH = 0;
+new ResizeObserver(() => { areneW = arene.clientWidth; areneH = arene.clientHeight; }).observe(arene);
+
+function recordJeu(){
+  const s = data.sessions.filter(x => x.mode === "Jeu" && typeof x.score === "number");
+  return s.length ? Math.max(...s.map(x => x.score)) : null;
+}
+function hudJeu(){
+  const r = recordJeu();
+  $("#j-m-score").firstElementChild.textContent = jeu ? jeu.score : 0;
+  $("#j-m-niveau").firstElementChild.textContent = jeu ? jeu.niveau : 1;
+  $("#j-m-vies").firstElementChild.textContent = jeu ? (jeu.vies > 0 ? "♥".repeat(jeu.vies) : "—") : "♥♥♥";
+  $("#j-m-record").firstElementChild.textContent = r === null ? "—" : r;
+}
+function afficherVoile(html){
+  voile.innerHTML = html;
+  voile.hidden = false;
+  const b = voile.querySelector(".btn");
+  if (b && vue === "jeu") b.focus({ preventScroll:true });
+}
+function voileAccueil(){
+  afficherVoile('<div class="carte-res"><p class="surtitre">Jeu</p><h3>Pluie de mots</h3>' +
+    '<p class="res-note">Les mots tombent : tape-les en entier avant qu\'ils touchent le sol. Trois vies, la vitesse augmente avec le niveau.</p>' +
+    '<div class="res-actions"><button class="btn" data-act="jouer">Commencer <kbd>Entrée</kbd></button></div></div>');
+}
+voile.addEventListener("click", e => {
+  const b = e.target.closest("[data-act]");
+  if (!b) return;
+  if (b.dataset.act === "reprendre") reprendreJeu(); else lancerJeu();
+});
 
 function lancerJeu(){
-  arene.querySelectorAll(".tombe").forEach(e => e.remove());
-  jeu = { mots:[], saisie:"", score:0, niveau:1, vies:3, dernier:0, cadence:1900, vitesse:26, rafId:null, t0:performance.now() };
-  document.getElementById("j-lancer").textContent = "Recommencer";
-  majJeuHUD();
-  affSaisie.textContent = "\u00A0";
-  cancelAnimationFrame(jeu.rafId);
-  boucleJeu(performance.now());
+  if (jeu) jeu.mots.forEach(w => w.el.remove());
+  arene.querySelectorAll(".tombe").forEach(el => el.remove());
+  jeu = { mots:[], saisie:"", score:0, niveau:1, vies:3, detruits:0, frappes:0, erreurs:0,
+          temps:0, prochain:0, dernierT:0, raf:0, pause:false, fini:false };
+  voile.hidden = true;
+  if (document.activeElement && document.activeElement.tagName === "BUTTON") document.activeElement.blur();
+  areneW = arene.clientWidth; areneH = arene.clientHeight;
+  hudJeu();
+  peindreSaisie();
+  jeu.raf = requestAnimationFrame(boucleJeu);
 }
-function majJeuHUD(){
-  document.getElementById("j-score").textContent = jeu.score;
-  document.getElementById("j-niveau").textContent = jeu.niveau;
-  document.getElementById("j-vies").textContent = jeu.vies > 0 ? "♥".repeat(jeu.vies) : "—";
-}
+const vitesseJeu = () => (26 + 7 * (jeu.niveau - 1)) * Math.max(.7, areneH / 400);
+const cadenceJeu = () => Math.max(650, 1900 - 150 * (jeu.niveau - 1));
+
 function ajouterMot(){
-  const texte = MOTS_JEU[Math.floor(Math.random()*MOTS_JEU.length)];
-  const el = document.createElement("div");
-  el.className = "tombe";
+  const premieres = new Set(jeu.mots.map(w => w.texte[0]));
+  let texte = choisir(MOTS_JEU);
+  for (let essai = 0; essai < 12 && premieres.has(texte[0]); essai++) texte = choisir(MOTS_JEU);
+  const el = h("div", "tombe");
   el.textContent = texte;
-  el.style.top = "-30px";
   arene.appendChild(el);
-  const marge = Math.max(10, arene.clientWidth - el.offsetWidth - 10);
-  el.style.left = Math.round(Math.random() * marge) + "px";
-  jeu.mots.push({texte, el, y:-30});
+  const w = el.offsetWidth, hh = el.offsetHeight;
+  const hauts = jeu.mots.filter(x => x.y < hh * 2.5);
+  let x = 10;
+  for (let essai = 0; essai < 8; essai++){
+    x = 10 + Math.random() * Math.max(0, areneW - w - 20);
+    if (!hauts.some(o => x < o.x + o.w + 12 && x + w + 12 > o.x)) break;
+  }
+  const mot = { texte, el, x, y:-hh, w, h:hh, rendu:0 };
+  el.style.transform = "translate3d(" + x + "px," + mot.y + "px,0)";
+  jeu.mots.push(mot);
 }
 function boucleJeu(t){
-  if (!jeu || jeu.vies <= 0) return;
-  const dt = Math.min(50, t - (jeu.dernierT || t));
+  if (!jeu || jeu.pause || jeu.fini) return;
+  const dt = jeu.dernierT ? Math.min(50, t - jeu.dernierT) : 16;
   jeu.dernierT = t;
-
-  if (t - jeu.dernier > jeu.cadence){ ajouterMot(); jeu.dernier = t; }
-
-  const bas = arene.clientHeight - 26;
+  jeu.temps += dt;
+  if (jeu.temps >= jeu.prochain){ ajouterMot(); jeu.prochain = jeu.temps + cadenceJeu(); }
+  const dy = vitesseJeu() * dt / 1000;
   for (let i = jeu.mots.length - 1; i >= 0; i--){
-    const m = jeu.mots[i];
-    m.y += jeu.vitesse * dt / 1000;
-    m.el.style.top = m.y + "px";
-    if (m.y >= bas){
-      m.el.remove();
+    const w = jeu.mots[i];
+    w.y += dy;
+    w.el.style.transform = "translate3d(" + w.x + "px," + w.y + "px,0)";
+    if (areneH > 60 && w.y + w.h >= areneH - 3){
       jeu.mots.splice(i, 1);
+      w.el.classList.add("crash");
+      setTimeout(() => w.el.remove(), 350);
       jeu.vies--;
-      jeu.saisie = "";
-      affSaisie.textContent = "\u00A0";
-      majJeuHUD();
+      if (!MOUVEMENT_REDUIT){ arene.classList.remove("choc"); void arene.offsetWidth; arene.classList.add("choc"); }
+      if (jeu.saisie && !jeu.mots.some(x => x.texte.startsWith(jeu.saisie))) jeu.saisie = "";
+      peindreSaisie();
+      hudJeu();
       if (jeu.vies <= 0){ finJeu(); return; }
     }
   }
-  jeu.rafId = requestAnimationFrame(boucleJeu);
+  jeu.raf = requestAnimationFrame(boucleJeu);
+}
+function pauseJeu(){
+  if (!jeu || jeu.pause || jeu.fini) return;
+  jeu.pause = true;
+  cancelAnimationFrame(jeu.raf);
+  afficherVoile('<div class="carte-res"><p class="surtitre">Pause</p><h3>' + jeu.score + ' points</h3>' +
+    '<div class="res-actions"><button class="btn creux" data-act="jouer">Recommencer</button>' +
+    '<button class="btn" data-act="reprendre">Reprendre <kbd>Entrée</kbd></button></div></div>');
+}
+function reprendreJeu(){
+  if (!jeu || !jeu.pause) return;
+  jeu.pause = false;
+  jeu.dernierT = 0;
+  areneW = arene.clientWidth; areneH = arene.clientHeight;
+  voile.hidden = true;
+  if (document.activeElement && document.activeElement.tagName === "BUTTON") document.activeElement.blur();
+  jeu.raf = requestAnimationFrame(boucleJeu);
 }
 function finJeu(){
-  jeu.mots.forEach(m => m.el.remove());
+  jeu.fini = true;
+  cancelAnimationFrame(jeu.raf);
+  jeu.mots.forEach(w => w.el.remove());
   jeu.mots = [];
-  cancelAnimationFrame(jeu.rafId);
-  affSaisie.textContent = "Partie terminée — " + jeu.score + " points";
-  data.sessions.push({d:Date.now(), mode:"Jeu", mpm:null, prec:null, score:jeu.score});
+  const ancien = recordJeu();
+  const prec = jeu.frappes ? Math.round((jeu.frappes - jeu.erreurs) / jeu.frappes * 100) : null;
+  ajouterSession({ d:Date.now(), mode:"Jeu", mpm:null, prec, score:jeu.score, dur:Math.round(jeu.temps / 1000) });
   sauver();
-  majStats();
-  jeu = null;
+  hudJeu();
+  const record = jeu.score > 0 && (ancien === null || jeu.score > ancien);
+  afficherVoile('<div class="carte-res"><p class="surtitre">Partie terminée</p>' +
+    '<h3>' + jeu.score + ' points' + (record ? '<span class="badge">Record</span>' : '') + '</h3>' +
+    '<div class="res-chiffres">' +
+      '<div><b>' + jeu.niveau + '</b><span>niveau</span></div>' +
+      '<div><b>' + jeu.detruits + '</b><span>mots détruits</span></div>' +
+      '<div><b>' + (prec === null ? "—" : prec + " %") + '</b><span>précision</span></div>' +
+    '</div>' +
+    '<div class="res-actions"><button class="btn" data-act="jouer">Rejouer <kbd>Entrée</kbd></button></div></div>');
 }
-function frapperJeu(e){
+function peindreSaisie(){
+  affSaisie.textContent = jeu ? jeu.saisie : "";
   if (!jeu) return;
-  if (e.key === "Escape"){ jeu.saisie = ""; peindreJeu(); return; }
-  if (e.key === "Backspace"){ e.preventDefault(); jeu.saisie = jeu.saisie.slice(0,-1); peindreJeu(); return; }
-  if (e.key.length !== 1) return;
-  e.preventDefault();
-  const essai = jeu.saisie + e.key;
-  const touche = jeu.mots.some(m => m.texte.startsWith(essai));
-  if (touche){
-    jeu.saisie = essai;
-    const idx = jeu.mots.findIndex(m => m.texte === essai);
-    if (idx !== -1){
-      const m = jeu.mots[idx];
-      m.el.remove();
-      jeu.mots.splice(idx, 1);
-      jeu.score += m.texte.length * 10;
-      jeu.saisie = "";
-      if (jeu.score > jeu.niveau * 300){
-        jeu.niveau++;
-        jeu.vitesse += 7;
-        jeu.cadence = Math.max(650, jeu.cadence - 160);
-      }
-      majJeuHUD();
-    }
-  } else {
-    jeu.saisie = "";
+  for (const w of jeu.mots){
+    const n = jeu.saisie && w.texte.startsWith(jeu.saisie) ? jeu.saisie.length : 0;
+    if (n === w.rendu) continue;     // ne touche au DOM que si l'état change
+    w.rendu = n;
+    w.el.classList.toggle("vise", n > 0);
+    w.el.innerHTML = n ? "<b>" + esc(w.texte.slice(0, n)) + "</b>" + esc(w.texte.slice(n)) : esc(w.texte);
   }
-  peindreJeu();
 }
-function peindreJeu(){
-  affSaisie.textContent = jeu.saisie || "\u00A0";
-  jeu.mots.forEach(m => {
-    const vise = jeu.saisie && m.texte.startsWith(jeu.saisie);
-    m.el.classList.toggle("vise", !!vise);
-    m.el.innerHTML = vise
-      ? '<span class="fait">' + jeu.saisie + '</span>' + m.texte.slice(jeu.saisie.length)
-      : m.texte;
-  });
+function toucheJeu(e){
+  if (!jeu || jeu.fini || jeu.pause){
+    if (e.key === "Enter"){ e.preventDefault(); if (jeu && jeu.pause) reprendreJeu(); else lancerJeu(); }
+    return null;
+  }
+  if (e.key === "Escape"){ e.preventDefault(); jeu.saisie = ""; peindreSaisie(); return null; }
+  if (e.key === "Backspace"){ e.preventDefault(); jeu.saisie = jeu.saisie.slice(0, -1); peindreSaisie(); return "neutre"; }
+  if (e.key.length !== 1) return null;
+  e.preventDefault();
+  if (e.repeat || e.key === " ") return "neutre";
+  const essai = jeu.saisie + e.key;
+  const cibles = jeu.mots.filter(w => w.texte.startsWith(essai));
+  jeu.frappes++;
+  if (!cibles.length){
+    jeu.erreurs++;
+    if (affSaisie.animate && !MOUVEMENT_REDUIT){
+      affSaisie.parentNode.animate([{translate:"0 0"},{translate:"-5px 0"},{translate:"5px 0"},{translate:"0 0"}], {duration:160});
+    }
+    return "faux";
+  }
+  jeu.saisie = essai;
+  const fini = cibles.find(w => w.texte === essai);
+  if (fini){
+    jeu.mots.splice(jeu.mots.indexOf(fini), 1);
+    fini.el.innerHTML = "<b>" + esc(fini.texte) + "</b>";
+    fini.el.classList.add("boum");
+    setTimeout(() => fini.el.remove(), 230);
+    jeu.score += fini.texte.length * 10 * jeu.niveau;
+    jeu.detruits++;
+    jeu.saisie = "";
+    if (jeu.score >= jeu.niveau * jeu.niveau * 250) jeu.niveau++;
+    hudJeu();
+  }
+  peindreSaisie();
+  return "ok";
 }
-document.getElementById("j-lancer").onclick = lancerJeu;
 
 /* =========================================================
-   8. VUE STATS
+   9. VUE PROGRESSION
    ========================================================= */
-function majStats(){
-  const avecMpm = data.sessions.filter(s => typeof s.mpm === "number");
-  const record = avecMpm.length ? Math.max(...avecMpm.map(s => s.mpm)) : null;
-  const dix = avecMpm.slice(-10);
-  const moy = dix.length ? Math.round(dix.reduce((a,s) => a+s.mpm, 0) / dix.length) : null;
-  const prec = dix.length ? Math.round(dix.reduce((a,s) => a+s.prec, 0) / dix.length) : null;
-
-  document.getElementById("s-record").textContent = record !== null ? record : "—";
-  document.getElementById("s-moyen").textContent  = moy !== null ? moy : "—";
-  document.getElementById("s-prec").textContent   = prec !== null ? prec + " %" : "—";
-  document.getElementById("s-lecons").textContent = Object.keys(data.lecons).length + "/" + LECONS.length;
-
-  // courbe
-  const g = document.getElementById("graphe");
-  if (avecMpm.length < 2){
-    g.innerHTML = '<p class="vide-msg">Deux sessions minimum pour tracer une courbe.</p>';
-  } else {
-    const pts = avecMpm.slice(-30).map(s => s.mpm);
-    const max = Math.max(...pts, 10) * 1.15, W = 600, H = 170, P = 12;
-    const x = i => P + i * (W - 2*P) / (pts.length - 1);
-    const y = v => H - P - (v / max) * (H - 2*P);
-    const ligne = pts.map((v,i) => x(i).toFixed(1) + "," + y(v).toFixed(1)).join(" ");
-    const aire = "M " + x(0).toFixed(1) + "," + (H-P) + " L " + ligne.split(" ").join(" L ") + " L " + x(pts.length-1).toFixed(1) + "," + (H-P) + " Z";
-    g.innerHTML =
-      '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Courbe des mots par minute">' +
-      '<path d="' + aire + '" fill="rgba(240,180,41,.14)"/>' +
-      '<polyline points="' + ligne + '" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linejoin="round"/>' +
-      pts.map((v,i) => '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(v).toFixed(1) + '" r="2.5" fill="var(--amber)"/>').join("") +
-      '</svg>';
-  }
-
-  // touches fautives
-  const h = document.getElementById("heatmap");
-  const tab = Object.entries(data.touches)
-    .filter(([,s]) => s.essais >= 8 && s.erreurs > 0)
-    .map(([c,s]) => ({c, taux: s.erreurs / s.essais, n:s.essais}))
-    .sort((a,b) => b.taux - a.taux).slice(0, 10);
-  if (!tab.length){
-    h.innerHTML = '<p class="vide-msg">Aucune touche problématique pour l\'instant.</p>';
-  } else {
-    const pire = tab[0].taux;
-    h.innerHTML = '<div class="barres">' + tab.map(t =>
-      '<div class="barre"><code>' + (t.c === " " ? "␣" : t.c) + '</code>' +
-      '<div class="jauge"><div style="width:' + Math.round((t.taux/pire)*100) + '%"></div></div>' +
-      '<small>' + Math.round(t.taux*100) + ' %</small></div>').join("") + '</div>';
-  }
-
-  // historique
-  const hi = document.getElementById("historique");
-  const recents = data.sessions.slice(-12).reverse();
-  if (!recents.length){
-    hi.innerHTML = '<p class="vide-msg">Rien à afficher.</p>';
-  } else {
-    hi.innerHTML = '<table><thead><tr><th>Date</th><th>Séance</th><th>MPM</th><th>Précision</th></tr></thead><tbody>' +
-      recents.map(s => {
-        const d = new Date(s.d);
-        const q = d.toLocaleDateString("fr-FR", {day:"2-digit", month:"2-digit"}) + " " +
-                  d.toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"});
-        return '<tr><td>' + q + '</td><td>' + s.mode + '</td>' +
-               '<td class="num">' + (s.mpm !== null && s.mpm !== undefined ? s.mpm : (s.score ? s.score + " pts" : "—")) + '</td>' +
-               '<td class="num">' + (s.prec !== null && s.prec !== undefined ? s.prec + " %" : "—") + '</td></tr>';
-      }).join("") + '</tbody></table>';
-  }
+function dureeLisible(s){
+  if (!s) return "—";
+  const mn = Math.round(s / 60);
+  if (mn < 1) return s + " s";
+  if (mn < 60) return mn + " min";
+  return Math.floor(mn / 60) + " h " + String(mn % 60).padStart(2, "0");
 }
-document.getElementById("s-reset").onclick = () => {
+function joursDAffilee(){
+  const jours = new Set(data.sessions.map(s => new Date(s.d).toDateString()));
+  const d = new Date();
+  if (!jours.has(d.toDateString())) d.setDate(d.getDate() - 1);   // la série tient jusqu'à ce soir
+  let n = 0;
+  while (jours.has(d.toDateString())){ n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+function dessinerStats(){
+  statsAJour = true;
+  const avecMpm = data.sessions.filter(s => typeof s.mpm === "number");
+  const dix = avecMpm.slice(-10);
+  $("#s-record").textContent = avecMpm.length ? Math.max(...avecMpm.map(s => s.mpm)) : "—";
+  $("#s-moyen").textContent = dix.length ? Math.round(dix.reduce((a, s) => a + s.mpm, 0) / dix.length) : "—";
+  $("#s-prec").textContent = dix.length ? Math.round(dix.reduce((a, s) => a + (s.prec || 0), 0) / dix.length) + " %" : "—";
+  $("#s-lecons").textContent = Object.keys(data.lecons).filter(i => LECONS[i]).length + "/" + LECONS.length;
+  $("#s-serie").textContent = joursDAffilee();
+  $("#s-temps").textContent = dureeLisible(data.sessions.reduce((a, s) => a + (s.dur || 0), 0));
+  dessinerCourbe();
+  dessinerChaleur();
+  dessinerHistorique();
+}
+function dessinerCourbe(){
+  const box = $("#s-courbe");
+  const pts = data.sessions.filter(s => typeof s.mpm === "number").slice(-40);
+  if (pts.length < 2){ box.innerHTML = '<p class="vide-msg">Termine au moins deux séries pour voir ta courbe.</p>'; return; }
+  const W = Math.max(280, box.clientWidth || 600), H = 220, PL = 32, PR = 10, PT = 10, PB = 26;
+  const maxV = Math.max(20, ...pts.map(p => p.mpm));
+  const pas = [5, 10, 20, 25, 50, 100].find(p => maxV / p <= 5) || 100;
+  const haut = Math.ceil(maxV / pas) * pas;
+  const x = i => PL + i * (W - PL - PR) / (pts.length - 1);
+  const y = v => PT + (1 - v / haut) * (H - PT - PB);
+  let g = '<g class="grille">';
+  for (let v = 0; v <= haut; v += pas){
+    g += '<line x1="' + PL + '" x2="' + (W - PR) + '" y1="' + y(v) + '" y2="' + y(v) + '"/>' +
+         '<text x="' + (PL - 8) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + v + '</text>';
+  }
+  g += '</g>';
+  const coords = pts.map((p, i) => x(i).toFixed(1) + "," + y(p.mpm).toFixed(1));
+  const date = d => new Date(d).toLocaleDateString("fr-FR", { day:"numeric", month:"short" });
+  box.innerHTML =
+    '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" role="img" aria-label="Évolution des mots par minute">' + g +
+      '<path class="aire" d="M' + x(0) + ',' + y(0) + ' L' + coords.join(" L") + ' L' + x(pts.length - 1) + ',' + y(0) + ' Z"/>' +
+      '<polyline class="trait" points="' + coords.join(" ") + '"/>' +
+      pts.map((p, i) => '<circle class="' + (p.mode === "Vitesse" ? "v" : "") + '" cx="' + x(i).toFixed(1) + '" cy="' + y(p.mpm).toFixed(1) + '" r="3.5">' +
+        '<title>' + esc(date(p.d) + " · " + p.mode + " · " + p.mpm + " mots/min" + (p.prec != null ? " · " + p.prec + " %" : "")) + '</title></circle>').join("") +
+      '<g class="axe"><text x="' + PL + '" y="' + (H - 6) + '">' + date(pts[0].d) + '</text>' +
+      '<text x="' + (W - PR) + '" y="' + (H - 6) + '" text-anchor="end">' + date(pts[pts.length - 1].d) + '</text></g>' +
+    '</svg>';
+}
+function dessinerChaleur(){
+  const box = $("#s-chaleur"), revoir = $("#s-revoir");
+  const lent = prefs.indic === "lenteur";
+  // agrège par touche physique (a et A, ; et . partagent la même touche)
+  const parTouche = {};
+  for (const [c, s] of Object.entries(data.touches)){
+    const info = CARTE[c] || (COMPOSE[c] ? CARTE[COMPOSE[c][1]] : null);
+    if (!info || !s) continue;
+    const b = info.def.base;
+    const a = parTouche[b] || (parTouche[b] = { essais:0, erreurs:0, ms:0, nt:0 });
+    a.essais += s.essais || 0; a.erreurs += s.erreurs || 0; a.ms += s.ms || 0; a.nt += s.nt || 0;
+  }
+  const valeur = a => lent ? (a.nt >= 5 ? a.ms / a.nt : null) : (a.essais >= 8 ? a.erreurs / a.essais : null);
+  const mesures = Object.entries(parTouche).map(([b, a]) => ({ b, v:valeur(a) })).filter(x => x.v !== null);
+  if (!mesures.length){
+    box.innerHTML = '<p class="vide-msg">La carte se remplira après quelques séries.</p>';
+    revoir.innerHTML = "";
+    return;
+  }
+  const kb = creerClavier();
+  kb.el.classList.add("chaleur");
+  kb.el.classList.toggle("lent", lent);
+  const vals = mesures.map(x => x.v).sort((a, b) => a - b);
+  const min = lent ? vals[0] : 0, max = Math.max(lent ? vals[vals.length - 1] : .12, min + 1e-6);
+  for (const { b, v } of mesures){
+    const el = kb.parBase[b];
+    if (!el) continue;
+    el.classList.add("mesuree");
+    el.style.setProperty("--heat", Math.round(8 + 72 * Math.min(1, (v - min) / (max - min))) + "%");
+    el.title = (b === " " ? "Espace" : b) + " : " + (lent ? Math.round(v) + " ms en moyenne" : Math.round(v * 100) + " % d'erreurs");
+  }
+  kb.el.removeAttribute("aria-hidden");
+  box.innerHTML = "";
+  box.appendChild(kb.el);
+  const pires = mesures.filter(x => lent || x.v > 0).sort((a, b) => b.v - a.v).slice(0, 6);
+  revoir.innerHTML = pires.length
+    ? (lent ? "Les plus lentes : " : "À travailler : ") + pires.map(x =>
+        "<kbd>" + esc(x.b === " " ? "␣" : x.b) + "</kbd> " + (lent ? Math.round(x.v) + " ms" : Math.round(x.v * 100) + " %")).join(" · ")
+    : "Aucune touche problématique.";
+}
+function dessinerHistorique(){
+  const box = $("#s-historique");
+  const recents = data.sessions.slice(-15).reverse();
+  if (!recents.length){ box.innerHTML = '<p class="vide-msg">Rien à afficher pour l\'instant.</p>'; return; }
+  box.innerHTML = '<table><thead><tr><th>Date</th><th>Séance</th><th class="num">Résultat</th><th class="num">Précision</th></tr></thead><tbody>' +
+    recents.map(s => {
+      const d = new Date(s.d);
+      const q = d.toLocaleDateString("fr-FR", { day:"2-digit", month:"2-digit" }) + " · " +
+                d.toLocaleTimeString("fr-FR", { hour:"2-digit", minute:"2-digit" });
+      const res = typeof s.mpm === "number" ? s.mpm + " mpm" : (typeof s.score === "number" ? s.score + " pts" : "—");
+      return '<tr><td>' + q + '</td><td>' + esc(s.mode) + '</td><td class="num">' + res + '</td>' +
+             '<td class="num">' + (s.prec != null ? s.prec + " %" : "—") + '</td></tr>';
+    }).join("") + '</tbody></table>';
+}
+segment("#s-indic", prefs.indic, v => { prefs.indic = v; ecrirePrefs(); dessinerChaleur(); });
+
+$("#s-exporter").onclick = () => {
+  const blob = new Blob([JSON.stringify({ app:"dactylo-azerty", version:1, exporte:new Date().toISOString(), data }, null, 1)],
+                        { type:"application/json" });
+  const a = h("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "dactylo-azerty-" + new Date().toISOString().slice(0, 10) + ".json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast("Progression exportée");
+};
+$("#s-importer").onclick = () => $("#s-fichier").click();
+$("#s-fichier").onchange = async e => {
+  const f = e.target.files[0];
+  e.target.value = "";
+  if (!f) return;
+  try{
+    const j = JSON.parse(await f.text());
+    const d = normaliser(j && j.data ? j.data : j);
+    if (!Object.keys(d.lecons).length && !d.sessions.length && !Object.keys(d.touches).length) throw new Error("vide");
+    if (!confirm("Remplacer la progression actuelle par celle du fichier ?")) return;
+    data = d;
+    sauver();
+    dessinerRail();
+    dessinerStats();
+    afficherRecordVitesse();
+    hudJeu();
+    toast("Progression importée");
+  }catch(err){ toast("Fichier non reconnu"); }
+};
+$("#s-reset").onclick = () => {
   let ok = true;
-  try { ok = confirm("Effacer toutes les leçons validées, les statistiques par touche et l'historique ?"); }
-  catch (e) { ok = true; }
+  try{ ok = confirm("Effacer toutes les leçons validées, les statistiques par touche et l'historique ?"); }catch(e){}
   if (!ok) return;
   data = { lecons:{}, touches:{}, sessions:[] };
   sauver();
-  dessinerLecons();
-  majStats();
+  dessinerRail();
+  dessinerStats();
+  afficherRecordVitesse();
+  hudJeu();
+  toast("Progression effacée");
 };
+let redimStats = 0;
+addEventListener("resize", () => {
+  if (vue !== "stats") { statsAJour = false; return; }
+  cancelAnimationFrame(redimStats);
+  redimStats = requestAnimationFrame(dessinerCourbe);
+});
 
 /* =========================================================
-   9. NAVIGATION + CLAVIER GLOBAL
+   10. PRÉFÉRENCES, NAVIGATION, CLAVIER GLOBAL
    ========================================================= */
+const ICONES_THEME = {
+  auto:  '<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/>',
+  clair: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" stroke-linecap="round"/>',
+  sombre:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>'
+};
+const NOM_THEME = { auto:"automatique", clair:"clair", sombre:"sombre" };
+function appliquerPrefs(){
+  document.documentElement.dataset.theme = prefs.theme;
+  const bt = $("#p-theme");
+  bt.title = "Thème : " + NOM_THEME[prefs.theme];
+  bt.setAttribute("aria-label", bt.title);
+  bt.querySelector("svg").innerHTML = ICONES_THEME[prefs.theme];
+  document.body.classList.toggle("sans-clavier", !prefs.clavier);
+  const bc = $("#p-clavier");
+  bc.setAttribute("aria-pressed", String(prefs.clavier));
+  bc.title = prefs.clavier ? "Masquer le clavier" : "Afficher le clavier";
+  bc.setAttribute("aria-label", bc.title);
+}
+$("#p-theme").onclick = () => {
+  prefs.theme = { auto:"clair", clair:"sombre", sombre:"auto" }[prefs.theme] || "auto";
+  ecrirePrefs(); appliquerPrefs();
+};
+$("#p-clavier").onclick = () => { prefs.clavier = !prefs.clavier; ecrirePrefs(); appliquerPrefs(); };
+
+const VUES = ["lecons", "vitesse", "jeu", "stats"];
+const RACCOURCIS = {
+  lecons:  "<span><kbd>Échap</kbd> nouvelle série</span><span><kbd>←</kbd> <kbd>→</kbd> changer de leçon (avant de commencer)</span><span>Le chrono démarre à la première touche</span>",
+  vitesse: "<span><kbd>Échap</kbd> nouveau texte</span><span>Le chrono démarre à la première touche</span><span>Pause automatique si tu quittes la page</span>",
+  jeu:     "<span><kbd>Entrée</kbd> commencer / reprendre</span><span><kbd>Échap</kbd> effacer la saisie</span><span>Pause automatique si tu quittes l'onglet</span>",
+  stats:   "<span>Ta progression reste dans ce navigateur — exporte-la pour la transférer</span>"
+};
 let vue = "lecons";
-document.querySelectorAll("nav button").forEach(b => {
-  b.onclick = () => {
-    vue = b.dataset.vue;
-    document.querySelectorAll("nav button").forEach(x => x.setAttribute("aria-selected", String(x === b)));
-    document.querySelectorAll(".panneau").forEach(p => p.classList.toggle("actif", p.id === "vue-" + vue));
-    if (vue === "stats") majStats();
-  };
+
+function suspendreTout(){
+  moteurLecon.suspendre();
+  pauseVitesse();
+  pauseJeu();
+  Object.values(claviers).forEach(c => c.toutRelacher());
+}
+function afficherVue(v, focusOnglet){
+  if (!VUES.includes(v)) v = "lecons";
+  if (v !== vue) suspendreTout();
+  vue = v;
+  $$("nav [role=tab]").forEach(b => {
+    const sel = b.dataset.vue === v;
+    b.setAttribute("aria-selected", String(sel));
+    b.tabIndex = sel ? 0 : -1;
+    if (sel && focusOnglet) b.focus();
+  });
+  VUES.forEach(x => { $("#vue-" + x).hidden = x !== v; });
+  $("#raccourcis").innerHTML = RACCOURCIS[v];
+  if (v === "stats" && !statsAJour) dessinerStats();
+  if (v === "jeu"){ hudJeu(); if (!jeu) voileAccueil(); }
+  if (location.hash.slice(1) !== v) history.replaceState(null, "", "#" + v);
+}
+$$("nav [role=tab]").forEach(b => b.addEventListener("click", () => { afficherVue(b.dataset.vue); b.blur(); }));
+$("nav[role=tablist]").addEventListener("keydown", e => {
+  const i = VUES.indexOf(vue);
+  let j = null;
+  if (e.key === "ArrowRight") j = (i + 1) % VUES.length;
+  else if (e.key === "ArrowLeft") j = (i + VUES.length - 1) % VUES.length;
+  else if (e.key === "Home") j = 0;
+  else if (e.key === "End") j = VUES.length - 1;
+  if (j === null) return;
+  e.preventDefault();
+  e.stopPropagation();
+  afficherVue(VUES[j], true);
 });
+addEventListener("hashchange", () => afficherVue(location.hash.slice(1)));
+
+let verrMaj = false;
+function majVerrMaj(e){
+  if (!e.getModifierState) return;
+  const v = e.getModifierState("CapsLock");
+  if (v === verrMaj) return;
+  verrMaj = v;
+  $$(".alerte-maj").forEach(el => { el.hidden = !v; });
+}
 
 document.addEventListener("keydown", e => {
-  if (e.ctrlKey || e.altKey || e.metaKey) return;
-  if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") return;
-  if (vue === "lecons" && moteurLecon.estActif()) moteurLecon.saisir(e);
-  else if (vue === "vitesse" && moteurVitesse.estActif()) moteurVitesse.saisir(e);
-  else if (vue === "jeu") frapperJeu(e);
-  else if (e.key === " ") e.preventDefault();
+  majVerrMaj(e);
+  if (e.isComposing) return;
+  const altGr = e.getModifierState && e.getModifierState("AltGraph");
+  if ((e.ctrlKey || e.metaKey || e.altKey) && !altGr) return;
+  const t = e.target;
+  if (t && (t.tagName === "INPUT" || t.tagName === "SELECT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+  // Entrée sur un bouton focalisé : comportement natif (évite le double déclenchement)
+  if (e.key === "Enter" && t && t.closest && t.closest("button")) return;
+
+  let res = null;
+  if (vue === "lecons") res = toucheLecons(e);
+  else if (vue === "vitesse") res = toucheVitesse(e);
+  else if (vue === "jeu") res = toucheJeu(e);
+  else if (e.key === " " && !(t && t.closest && t.closest("button"))) e.preventDefault();
+
+  const kb = claviers[vue];
+  if (kb && !e.repeat) kb.presser(e.code, res === "faux");
+});
+document.addEventListener("keyup", e => {
+  majVerrMaj(e);
+  const kb = claviers[vue];
+  if (kb) kb.relacher(e.code);
+});
+addEventListener("blur", suspendreTout);
+document.addEventListener("visibilitychange", () => { if (document.hidden){ suspendreTout(); sauverSiModifie(); } });
+addEventListener("pagehide", sauverSiModifie);
+// progression faite dans un autre onglet
+addEventListener("storage", e => {
+  if (e.key !== CLE || !e.newValue) return;
+  try{ data = normaliser(JSON.parse(e.newValue)); }catch(err){ return; }
+  statsAJour = false;
+  dessinerRail();
+  afficherRecordVitesse();
+  if (vue === "stats") dessinerStats();
 });
 
 /* =========================================================
-   10. DÉMARRAGE
+   11. DÉMARRAGE
    ========================================================= */
+appliquerPrefs();
 (async function init(){
-  await chargerData();
+  data = normaliser(await Store.lire(CLE));
   const prochaine = LECONS.findIndex((_, i) => !data.lecons[i]);
   leconActive = prochaine === -1 ? 0 : prochaine;
-  dessinerLecons();
   choisirLecon(leconActive);
-  majStats();
+  lancerVitesse();
+  afficherVue(location.hash.slice(1) || "lecons");
 })();
 </script>
 </body>
